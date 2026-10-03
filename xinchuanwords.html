@@ -1,0 +1,2523 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>新传考研 · 名词解释刷题</title>
+<style>
+  :root{
+    --bg:#faf9f6;
+    --bg-card:#ffffff;
+    --text:#1c1b1a;
+    --text-soft:#6b6864;
+    --text-mute:#9b9790;
+    --accent:#c8553d;
+    --accent-soft:#f7e8e2;
+    --green:#2e7d32;
+    --green-soft:#e8f5e9;
+    --border:#eceae4;
+    --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);
+    --radius:16px;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.65;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* 顶部栏 */
+  .topbar{
+    position:fixed;top:0;left:0;right:0;z-index:30;
+    background:rgba(250,249,246,.85);backdrop-filter:blur(20px);
+    border-bottom:1px solid transparent;
+    transition:border-color .3s;
+  }
+  .topbar.scrolled{border-bottom-color:var(--border)}
+  .topbar-inner{
+    max-width:720px;margin:0 auto;padding:14px 20px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand h1{font-size:15px;font-weight:600;margin:0;letter-spacing:.2px}
+  .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  .top-actions{display:flex;align-items:center;gap:10px}
+  .mini-stat{
+    font-size:12px;color:var(--text-soft);
+    padding:4px 10px;background:var(--bg-card);border-radius:20px;
+    border:1px solid var(--border);
+  }
+  .mini-stat b{color:var(--text);font-weight:600}
+  .mini-stat.done{background:var(--accent);border-color:var(--accent);color:#fff}
+  .mini-stat.done b{color:#fff}
+  .menu-btn{
+    width:36px;height:36px;border:none;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:10px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    font-size:16px;transition:all .2s;
+  }
+  .menu-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* 主内容区 */
+  .main{
+    max-width:640px;margin:0 auto;
+    padding:80px 20px 60px;
+    min-height:100vh;
+    display:flex;flex-direction:column;justify-content:center;
+  }
+
+  /* 进度条 */
+  .progress-wrap{margin-bottom:28px}
+  .progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text-mute);margin-bottom:8px;letter-spacing:.2px}
+  .progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+  .progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s ease}
+
+  /* 刷题卡片 */
+  .term-card{
+    background:var(--bg-card);
+    border-radius:var(--radius);
+    padding:48px 40px;
+    box-shadow:var(--shadow);
+    border:1px solid var(--border);
+  }
+  .term-meta{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:20px;
+  }
+  .term-cat-tag{
+    display:inline-block;padding:3px 12px;border-radius:20px;font-size:12px;
+    background:var(--accent-soft);color:var(--accent);font-weight:500;letter-spacing:.3px;
+  }
+  .term-index{font-size:12px;color:var(--text-mute);font-family:var(--mono)}
+  .fav-btn{
+    background:none;border:none;cursor:pointer;font-size:20px;padding:4px 6px;
+    border-radius:6px;transition:all .2s;line-height:1;
+  }
+  .fav-btn:hover{background:var(--bg);transform:scale(1.1)}
+  .fav-btn.active{color:#f5a623}
+  .fav-btn.active:hover{background:#fef7e6}
+  
+  .term-title{
+    font-size:36px;font-weight:700;letter-spacing:.5px;
+    margin-bottom:12px;line-height:1.3;
+    transition:color .3s;
+  }
+  .srs-info{
+    font-size:12px;color:var(--text-mute);
+    display:inline-flex;align-items:center;gap:8px;
+    padding:4px 10px;background:var(--bg);border-radius:6px;
+    margin-bottom:28px;
+  }
+  .srs-info .dot-small{width:4px;height:4px;border-radius:50%;background:var(--text-mute)}
+
+  /* 答题按钮 */
+  .btn-row{display:flex;gap:12px;margin-bottom:0}
+  .btn{
+    padding:14px 24px;border:none;border-radius:12px;font-size:15px;
+    cursor:pointer;font-weight:500;transition:all .2s;flex:1;
+    letter-spacing:.2px;
+  }
+  .btn-know{background:var(--green-soft);color:var(--green);border:1px solid #b8dbbc}
+  .btn-know:hover{background:#d4edda;transform:translateY(-1px)}
+  .btn-know:active{transform:translateY(0)}
+  .btn-dont{background:var(--accent-soft);color:var(--accent);border:1px solid #e8c4b5}
+  .btn-dont:hover{background:#f0d5cb;transform:translateY(-1px)}
+  .btn-dont:active{transform:translateY(0)}
+
+  /* 答案区 */
+  .answer-area{
+    margin-top:28px;padding-top:24px;
+    border-top:1px solid var(--border);
+    display:none;
+    animation:slideDown .3s ease;
+  }
+  .answer-area.show{display:block}
+  @keyframes slideDown{
+    from{opacity:0;transform:translateY(-8px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  .answer-header{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .cache-badge{
+    display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;
+    background:var(--green-soft);color:var(--green);font-weight:500;
+  }
+  .cache-badge.new{background:var(--accent-soft);color:var(--accent)}
+  .regen-btn{
+    font-size:12px;color:var(--text-soft);background:none;border:none;
+    cursor:pointer;padding:2px 6px;border-radius:4px;
+  }
+  .regen-btn:hover{color:var(--accent);background:var(--accent-soft)}
+
+  .answer-loading{
+    display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-soft);
+    padding:20px;background:var(--bg);border-radius:10px;
+  }
+  .spinner{
+    width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);
+    border-radius:50%;animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .answer-content{font-size:14.5px;line-height:1.85;color:var(--text)}
+  .answer-content h4{
+    font-size:11px;text-transform:uppercase;letter-spacing:1.2px;
+    color:var(--text-mute);margin:18px 0 4px;font-weight:600;
+  }
+  .answer-content h4:first-child{margin-top:0}
+  .answer-content p{margin-bottom:4px}
+  .answer-error{padding:14px;background:#fef2f2;color:#b91c1c;border-radius:10px;font-size:13px;line-height:1.6;white-space:pre-wrap}
+
+  /* 底部导航 */
+  .foot-nav{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-top:20px;
+  }
+  .foot-nav .hint{font-size:11px;color:var(--text-mute);letter-spacing:.2px}
+  .foot-btns{display:flex;gap:8px}
+  .foot-btn{
+    padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;
+    background:var(--bg-card);border:1px solid var(--border);color:var(--text-soft);
+    transition:all .2s;
+  }
+  .foot-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .foot-btn.primary{background:var(--text);color:#fff;border-color:var(--text)}
+  .foot-btn.primary:hover{opacity:.85;border-color:var(--text)}
+
+  /* 侧滑菜单 */
+  .drawer-mask{
+    position:fixed;inset:0;background:rgba(0,0,0,0);z-index:40;
+    pointer-events:none;transition:background .25s;
+  }
+  .drawer-mask.open{background:rgba(0,0,0,.3);pointer-events:auto}
+  .drawer{
+    position:fixed;top:0;right:0;bottom:0;
+    width:320px;max-width:85vw;
+    background:var(--bg-card);z-index:50;
+    transform:translateX(100%);transition:transform .3s ease;
+    overflow-y:auto;
+    box-shadow:-4px 0 24px rgba(0,0,0,.08);
+  }
+  .drawer.open{transform:translateX(0)}
+  .drawer-header{
+    padding:18px 20px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;background:var(--bg-card);z-index:1;
+  }
+  .drawer-header h2{font-size:15px;font-weight:600}
+  .close-btn{
+    width:30px;height:30px;border:none;background:var(--bg);
+    border-radius:8px;cursor:pointer;font-size:16px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .close-btn:hover{background:var(--border)}
+  .drawer-section{padding:16px 20px;border-bottom:1px solid var(--border)}
+  .drawer-section:last-child{border-bottom:none}
+  .drawer-section h3{
+    font-size:11px;color:var(--text-mute);font-weight:600;
+    text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;
+  }
+
+  /* 模式选择 */
+  .mode-switch{
+    display:flex;background:var(--bg);border-radius:10px;padding:3px;
+  }
+  .mode-switch button{
+    flex:1;padding:8px;border:none;background:transparent;
+    border-radius:8px;font-size:13px;cursor:pointer;color:var(--text-soft);
+    transition:all .2s;font-weight:500;
+  }
+  .mode-switch button.active{
+    background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.06);
+  }
+
+  /* 分类列表 */
+  .cat-list{list-style:none;display:flex;flex-direction:column;gap:2px}
+  .cat-list li{
+    padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13.5px;
+    display:flex;justify-content:space-between;align-items:center;
+    transition:background .15s;color:var(--text);
+  }
+  .cat-list li:hover{background:var(--bg)}
+  .cat-list li.active{background:var(--accent-soft);color:var(--accent);font-weight:500}
+  .cat-list li .count{font-size:11px;color:var(--text-mute);font-family:var(--mono)}
+  .cat-list li.active .count{color:var(--accent);opacity:.7}
+
+  /* 操作按钮列表 */
+  .action-list{display:flex;flex-direction:column;gap:4px}
+  .action-btn{
+    padding:10px 12px;border:1px solid var(--border);border-radius:8px;
+    background:#fff;font-size:13px;cursor:pointer;text-align:left;color:var(--text);
+    transition:all .15s;display:flex;align-items:center;gap:8px;
+  }
+  .action-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .action-btn .icon{font-size:15px}
+
+  /* API 设置 */
+  .key-row{display:flex;gap:8px}
+  .key-row input{
+    flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;
+    font-family:var(--mono);font-size:12px;background:var(--bg);
+  }
+  .key-row input:focus{outline:none;border-color:var(--accent);background:#fff}
+  .key-row button{
+    padding:9px 14px;border:none;border-radius:8px;background:var(--accent);
+    color:#fff;font-size:12px;cursor:pointer;font-weight:500;white-space:nowrap;
+  }
+  .key-row button:hover{opacity:.9}
+  .key-status{font-size:11px;margin-top:6px;color:var(--text-mute)}
+  .key-status.ok{color:var(--green)}
+  .key-status.warn{color:#d97706}
+
+  /* 统计卡片 */
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:0}
+  .stat-item{
+    text-align:center;padding:10px 6px;background:var(--bg);border-radius:8px;
+  }
+  .stat-item .num{font-size:18px;font-weight:700;color:var(--text)}
+  .stat-item .label{font-size:10px;color:var(--text-mute);margin-top:2px;letter-spacing:.3px}
+
+  /* 导入弹窗 */
+  .modal-mask{
+    position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:60;
+    display:none;align-items:center;justify-content:center;padding:20px;
+  }
+  .modal-mask.show{display:flex}
+  .modal{
+    background:#fff;border-radius:14px;padding:24px;max-width:480px;width:100%;
+    max-height:80vh;overflow-y:auto;
+    animation:popIn .2s ease;
+  }
+  @keyframes popIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+  .modal h3{margin-bottom:6px;font-size:17px;font-weight:600}
+  .modal p{font-size:13px;color:var(--text-soft);margin-bottom:12px;line-height:1.6}
+  .modal code{font-size:11px;background:var(--bg);padding:2px 6px;border-radius:4px}
+  .modal textarea{
+    width:100%;min-height:140px;padding:10px;border:1px solid var(--border);
+    border-radius:8px;font-family:var(--mono);font-size:12px;resize:vertical;
+    background:var(--bg);
+  }
+  .modal textarea:focus{outline:none;border-color:var(--accent);background:#fff}
+  .modal input[type=text]{
+    width:100%;padding:8px 10px;border:1px solid var(--border);
+    border-radius:6px;font-size:13px;margin-top:4px;background:var(--bg);
+  }
+  .modal input[type=text]:focus{outline:none;border-color:var(--accent);background:#fff}
+  .modal-label{font-size:12px;color:var(--text-soft);margin-top:12px;display:block}
+  .modal-btns{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+  .modal-btns button{
+    padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;border:none;
+    font-weight:500;
+  }
+  .btn-cancel{background:var(--bg);color:var(--text-soft)}
+  .btn-cancel:hover{background:var(--border)}
+  .btn-confirm{background:var(--accent);color:#fff}
+  .btn-confirm:hover{opacity:.9}
+
+  /* 空状态 */
+  .empty-state{
+    text-align:center;padding:40px 20px;
+  }
+  .empty-state .emoji{font-size:42px;margin-bottom:12px}
+  .empty-state h2{font-size:18px;margin-bottom:6px;font-weight:600}
+  .empty-state p{color:var(--text-soft);font-size:13px;margin-bottom:0}
+
+  @media(max-width:480px){
+    .term-card{padding:32px 24px}
+    .term-title{font-size:28px}
+    .main{padding:70px 16px 40px}
+  }
+
+  @media print{
+    .topbar,.foot-nav,.btn-row,.drawer,.drawer-mask{display:none!important}
+    .main{padding:0;max-width:none}
+    .term-card{box-shadow:none;border:none;padding:0}
+  }
+</style>
+</head>
+<body>
+
+<!-- 顶部栏 -->
+<header class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="dot"></span><h1>新传名词解释</h1></div>
+    <div class="top-actions">
+      <button class="menu-btn" onclick="openSearch()" title="搜索">🔍</button>
+      <span class="mini-stat" id="miniStat">今日 <b>0/20</b></span>
+      <button class="menu-btn" onclick="openDrawer()" title="菜单">☰</button>
+    </div>
+  </div>
+</header>
+
+<!-- 主内容 -->
+<main class="main">
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="progressLabel">今日复习</span>
+      <span id="progressText">0 / 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="term-card" id="termCard">
+    <div class="empty-state" id="emptyState" style="display:none">
+      <div class="emoji">📚</div>
+      <h2 id="emptyTitle">这个分类还没有题目</h2>
+      <p id="emptyDesc">点右上角菜单导入你的真题名词吧</p>
+    </div>
+    <div class="term-content" id="termContent">
+    <div class="term-meta">
+      <span class="term-cat-tag" id="termCat">—</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="fav-btn" id="favBtn" onclick="toggleFav()" title="收藏">☆</button>
+        <span class="term-index" id="termIndex"></span>
+      </div>
+    </div>
+    <div class="term-title" id="termTitle">加载中...</div>
+    <div class="srs-info" id="srsInfo">
+      <span>新词</span><span class="dot-small"></span><span id="srs-detail">点击开始</span>
+    </div>
+    <div class="btn-row" id="btnRow">
+      <button class="btn btn-know" onclick="markKnow()">✓ 我会了</button>
+      <button class="btn btn-dont" onclick="markDont()">✗ 不会，看答案</button>
+    </div>
+
+    <div class="answer-area" id="answerArea">
+      <div class="answer-header">
+        <span class="cache-badge" id="cacheBadge" style="display:none"></span>
+        <button class="regen-btn" onclick="regenerateAnswer()" id="regenBtn" style="display:none">↻ 重新生成</button>
+      </div>
+      <div class="answer-loading" id="answerLoading" style="display:none">
+        <div class="spinner"></div><span>AI 正在生成答案...</span>
+      </div>
+      <div class="answer-content" id="answerContent" style="display:none"></div>
+      <div class="answer-error" id="answerError" style="display:none"></div>
+    </div>
+    </div>
+  </div>
+
+  <div class="foot-nav">
+    <div class="hint">⌨️ 回车=会了 · 空格=不会 · ← → 切换</div>
+    <div class="foot-btns">
+      <button class="foot-btn" onclick="prevTerm()" title="上一题">← 上一题</button>
+      <button class="foot-btn" onclick="shuffleTerms()" title="乱序">🔀</button>
+      <button class="foot-btn primary" onclick="nextTerm()">下一题 →</button>
+    </div>
+  </div>
+</main>
+
+<!-- 侧滑菜单遮罩 -->
+<div class="drawer-mask" id="drawerMask" onclick="closeDrawer()"></div>
+
+<!-- 侧滑菜单 -->
+<aside class="drawer" id="drawer">
+  <div class="drawer-header">
+    <h2>菜单</h2>
+    <button class="close-btn" onclick="closeDrawer()">✕</button>
+  </div>
+
+  <div class="drawer-section">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="num" id="stat-total">0</div>
+        <div class="label">总数</div>
+      </div>
+      <div class="stat-item">
+        <div class="num" id="stat-mastered">0</div>
+        <div class="label">已掌握</div>
+      </div>
+      <div class="stat-item">
+        <div class="num" id="stat-due">0</div>
+        <div class="label">待复习</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer-section">
+    <h3>学习模式</h3>
+    <div class="mode-switch">
+      <button class="active" id="mode-srs" onclick="setMode('srs')">🧠 间隔复习</button>
+      <button id="mode-browse" onclick="setMode('browse')">📖 顺序浏览</button>
+    </div>
+  </div>
+
+  <div class="drawer-section">
+    <h3>知识点分类</h3>
+    <input type="text" id="searchInput" placeholder="🔍 搜索名词..." style="width:100%;padding:8px 12px;margin-bottom:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:13px" oninput="filterSearch()">
+    <ul class="cat-list" id="catList"></ul>
+  </div>
+
+  <div class="drawer-section">
+    <h3>AI 答题配置</h3>
+    <p style="font-size:12px;color:var(--text-soft);margin-bottom:8px;line-height:1.5">
+      填写 DeepSeek API Key，仅保存在你本地浏览器。
+    </p>
+    <div class="key-row">
+      <input type="password" id="apiKey" placeholder="sk-...">
+      <button onclick="saveKey()">保存</button>
+    </div>
+    <div class="key-status" id="keyStatus">未配置</div>
+  </div>
+
+  <div class="drawer-section">
+    <h3>🎯 每日复习目标</h3>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+      <input type="number" id="dailyGoal" min="5" max="500" value="20" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px">
+      <button onclick="saveDailyGoal()" style="padding:8px 16px">保存</button>
+    </div>
+    <p style="font-size:12px;color:var(--text-soft);line-height:1.5;margin-bottom:8px">
+      🔥 连续打卡：<b id="streakDays" style="color:var(--accent)">0</b> 天
+      <br>📅 累计打卡：<b id="totalCheckinDays" style="color:var(--accent)">0</b> 天
+    </p>
+    <div class="streak-cal" id="streakCal" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:6px"></div>
+  </div>
+
+  <div class="drawer-section">
+    <h3>数据管理</h3>
+    <div class="action-list">
+      <button class="action-btn" onclick="openImport()"><span class="icon">📥</span>导入真题名词</button>
+      <button class="action-btn" onclick="importData()"><span class="icon">📤</span>导入学习记录</button>
+      <button class="action-btn" onclick="exportData()"><span class="icon">💾</span>导出学习记录</button>
+      <button class="action-btn" onclick="clearCache()"><span class="icon">🗑</span>清除答案缓存</button>
+      <button class="action-btn" onclick="resetProgress()"><span class="icon">↺</span>重置学习进度</button>
+    </div>
+  </div>
+</aside>
+
+<!-- 导入弹窗 -->
+<div class="modal-mask" id="importModal">
+  <div class="modal">
+    <h3>导入名词解释</h3>
+    <p>支持 JSON 或纯文本格式。每行一个名词。</p>
+    <p><code>[{"term":"议程设置","category":"传播学理论"}, ...]</code></p>
+    <textarea id="importText" placeholder="每行一个名词，或粘贴 JSON 数组"></textarea>
+    <label class="modal-label">纯文本模式下的分类名：</label>
+    <input type="text" id="importCat" placeholder="例如：新闻学基础">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeImport()">取消</button>
+      <button class="btn-confirm" onclick="doImport()">导入</button>
+    </div>
+  </div>
+</div>
+
+<!-- 搜索弹窗 -->
+<div class="modal-mask" id="searchModal">
+  <div class="modal">
+    <h3>🔍 搜索名词</h3>
+    <input type="text" id="searchTermInput" placeholder="输入关键词搜索..." style="width:100%;padding:10px 14px;margin-bottom:12px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-size:14px" oninput="searchTerms()">
+    <label class="modal-label"><input type="checkbox" id="searchOnlyAnswered" onchange="searchTerms()"> 只看已答过的</label>
+    <div id="searchResults" style="max-height:300px;overflow-y:auto;margin-top:8px;border:1px solid var(--border);border-radius:8px"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeSearch()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== 间隔重复（艾宾浩斯）==========
+const SRS_INTERVALS = [0, 1, 2, 4, 7, 15, 30, 60];
+const SRS_LABELS = ["新词","初识","熟悉","掌握","熟练","精通","已牢记","永久记忆"];
+
+function getSrsInfo(termName){
+  const rec = srsData[termName];
+  if(!rec) return {box:0, nextReview:0, lastReview:0, reviewCount:0, label:"新词"};
+  return {...rec, label: SRS_LABELS[Math.min(rec.box, SRS_LABELS.length-1)]};
+}
+
+function srsMarkKnow(termName){
+  const now = Date.now();
+  const rec = srsData[termName] || {box:0, nextReview:0, lastReview:0, reviewCount:0};
+  const newBox = Math.min(rec.box + 1, SRS_INTERVALS.length - 1);
+  const days = SRS_INTERVALS[newBox];
+  srsData[termName] = {
+    box: newBox,
+    nextReview: now + days * 24 * 60 * 60 * 1000,
+    lastReview: now,
+    reviewCount: rec.reviewCount + 1
+  };
+  saveData();
+}
+
+function srsMarkDont(termName){
+  const now = Date.now();
+  const rec = srsData[termName] || {box:0, nextReview:0, lastReview:0, reviewCount:0};
+  srsData[termName] = {
+    box: 1,
+    nextReview: now + 1 * 24 * 60 * 60 * 1000,
+    lastReview: now,
+    reviewCount: rec.reviewCount + 1
+  };
+  saveData();
+}
+
+function isDue(termName){
+  const info = getSrsInfo(termName);
+  return info.nextReview <= Date.now();
+}
+
+function formatNextReview(nextReviewTs){
+  if(!nextReviewTs) return "尚未学习";
+  const now = Date.now();
+  const diff = nextReviewTs - now;
+  if(diff <= 0) return "等待复习";
+  const days = Math.ceil(diff / (24*60*60*1000));
+  if(days < 1) return "今天晚些时候";
+  if(days === 1) return "明天";
+  return days + "天后";
+}
+
+// ========== 数据层 ==========
+const DEFAULT_TERMS = [
+  {term:"框架理论",category:"新闻理论基础"},
+  {term:"新闻价值",category:"新闻理论基础"},
+  {term:"数据新闻",category:"新闻理论基础"},
+  {term:"第三人效果",category:"新闻理论基础"},
+  {term:"隐性采访",category:"新闻理论基础"},
+  {term:"媒介融合",category:"新闻理论基础"},
+  {term:"解释性报道",category:"新闻理论基础"},
+  {term:"新闻敏感",category:"新闻理论基础"},
+  {term:"马克思主义新闻观",category:"新闻理论基础"},
+  {term:"平台型媒体",category:"新闻理论基础"},
+  {term:"新闻真实性",category:"新闻理论基础"},
+  {term:"事实核查",category:"新闻理论基础"},
+  {term:"信息茧房",category:"新闻理论基础"},
+  {term:"平台社会",category:"新闻理论基础"},
+  {term:"建设性新闻",category:"新闻理论基础"},
+  {term:"媒介接近权",category:"新闻理论基础"},
+  {term:"四全媒体",category:"新闻理论基础"},
+  {term:"新闻线索",category:"新闻理论基础"},
+  {term:"新闻跳笔",category:"新闻理论基础"},
+  {term:"版面语言",category:"新闻理论基础"},
+  {term:"新闻导语",category:"新闻理论基础"},
+  {term:"伯明翰学派",category:"新闻理论基础"},
+  {term:"受众框架",category:"新闻理论基础"},
+  {term:"新闻回避",category:"新闻理论基础"},
+  {term:"新闻述评",category:"新闻理论基础"},
+  {term:"新闻道德",category:"新闻理论基础"},
+  {term:"景观社会",category:"新闻理论基础"},
+  {term:"沉浸式新闻",category:"新闻理论基础"},
+  {term:"算法素养",category:"新闻理论基础"},
+  {term:"集合行为",category:"新闻理论基础"},
+  {term:"交叉采访",category:"新闻理论基础"},
+  {term:"传播效果",category:"新闻理论基础"},
+  {term:"体验式采访",category:"新闻理论基础"},
+  {term:"同期声",category:"新闻理论基础"},
+  {term:"媒介审判",category:"新闻理论基础"},
+  {term:"媒介素养",category:"新闻理论基础"},
+  {term:"批判学派",category:"新闻理论基础"},
+  {term:"新型主流媒体",category:"新闻理论基础"},
+  {term:"新闻本源",category:"新闻理论基础"},
+  {term:"新闻来源",category:"新闻理论基础"},
+  {term:"新闻背景",category:"新闻理论基础"},
+  {term:"新闻舆论",category:"新闻理论基础"},
+  {term:"新闻角度",category:"新闻理论基础"},
+  {term:"有限效果论",category:"新闻理论基础"},
+  {term:"消息",category:"新闻理论基础"},
+  {term:"特稿",category:"新闻理论基础"},
+  {term:"硬新闻",category:"新闻理论基础"},
+  {term:"算法新闻",category:"新闻理论基础"},
+  {term:"编者按",category:"新闻理论基础"},
+  {term:"舆论引导",category:"新闻理论基础"},
+  {term:"舆论监督",category:"新闻理论基础"},
+  {term:"芝加哥学派",category:"新闻理论基础"},
+  {term:"融合报道",category:"新闻理论基础"},
+  {term:"融合新闻",category:"新闻理论基础"},
+  {term:"软新闻",category:"新闻理论基础"},
+  {term:"免疫效果",category:"新闻理论基础"},
+  {term:"倒金字塔结构",category:"新闻理论基础"},
+  {term:"报道立意",category:"新闻理论基础"},
+  {term:"文化工业",category:"新闻理论基础"},
+  {term:"涵化理论",category:"新闻理论基础"},
+  {term:"符号",category:"新闻理论基础"},
+  {term:"知沟理论",category:"新闻理论基础"},
+  {term:"专题报道",category:"新闻理论基础"},
+  {term:"延缓性导语",category:"新闻理论基础"},
+  {term:"主题宣传",category:"新闻理论基础"},
+  {term:"介入式新闻",category:"新闻理论基础"},
+  {term:"传感器新闻",category:"新闻理论基础"},
+  {term:"信息",category:"新闻理论基础"},
+  {term:"信息主权",category:"新闻理论基础"},
+  {term:"党报理论",category:"新闻理论基础"},
+  {term:"典型宣传",category:"新闻理论基础"},
+  {term:"参与式文化",category:"新闻理论基础"},
+  {term:"发展传播学",category:"新闻理论基础"},
+  {term:"受众即市场",category:"新闻理论基础"},
+  {term:"哈瓦斯通讯社",category:"新闻理论基础"},
+  {term:"大语言模型",category:"新闻理论基础"},
+  {term:"媒介物质性",category:"新闻理论基础"},
+  {term:"媒介生态",category:"新闻理论基础"},
+  {term:"封闭式提问",category:"新闻理论基础"},
+  {term:"微短剧",category:"新闻理论基础"},
+  {term:"情境意义",category:"新闻理论基础"},
+  {term:"情感劳动",category:"新闻理论基础"},
+  {term:"技术可供性",category:"新闻理论基础"},
+  {term:"把关人理论",category:"新闻理论基础"},
+  {term:"拟态环境",category:"新闻理论基础"},
+  {term:"播客新闻",category:"新闻理论基础"},
+  {term:"文化折扣",category:"新闻理论基础"},
+  {term:"新闻专业主义",category:"新闻理论基础"},
+  {term:"新闻伦理",category:"新闻理论基础"},
+  {term:"新闻侵权",category:"新闻理论基础"},
+  {term:"新闻指导性",category:"新闻理论基础"},
+  {term:"新闻生产场域",category:"新闻理论基础"},
+  {term:"新闻选题",category:"新闻理论基础"},
+  {term:"特写",category:"新闻理论基础"},
+  {term:"用户体验",category:"新闻理论基础"},
+  {term:"电视人",category:"新闻理论基础"},
+  {term:"策展新闻",category:"新闻理论基础"},
+  {term:"算法权力",category:"新闻理论基础"},
+  {term:"编辑方针",category:"新闻理论基础"},
+  {term:"网络社会",category:"新闻理论基础"},
+  {term:"群体压力",category:"新闻理论基础"},
+  {term:"群体意识",category:"新闻理论基础"},
+  {term:"群体感染",category:"新闻理论基础"},
+  {term:"群体规范",category:"新闻理论基础"},
+  {term:"解释性新闻",category:"新闻理论基础"},
+  {term:"警钟效果",category:"新闻理论基础"},
+  {term:"连续性报道",category:"新闻理论基础"},
+  {term:"通讯",category:"新闻理论基础"},
+  {term:"非故意性失实",category:"新闻理论基础"},
+  {term:"韬奋精神",category:"新闻理论基础"},
+  {term:"MCN机构",category:"新闻理论基础"},
+  {term:"数据可视化",category:"新闻理论基础"},
+  {term:"信息噪音",category:"新闻理论基础"},
+  {term:"文化霸权",category:"新闻理论基础"},
+  {term:"沙漏式结构",category:"新闻理论基础"},
+  {term:"深度伪造",category:"新闻理论基础"},
+  {term:"跨文化传播",category:"新闻理论基础"},
+  {term:".融合报道",category:"新闻理论基础"},
+  {term:"OGC",category:"新闻理论基础"},
+  {term:"UGC 平台",category:"新闻理论基础"},
+  {term:"VR新闻",category:"新闻理论基础"},
+  {term:"ugc",category:"新闻理论基础"},
+  {term:"《做新闻》",category:"新闻理论基础"},
+  {term:"专访",category:"新闻理论基础"},
+  {term:"两个舆论场",category:"新闻理论基础"},
+  {term:"两级传播理论",category:"新闻理论基础"},
+  {term:"中央厨房(5)(传播学部分)",category:"新闻理论基础"},
+  {term:"中景",category:"新闻理论基础"},
+  {term:"中视频",category:"新闻理论基础"},
+  {term:"临场化新闻",category:"新闻理论基础"},
+  {term:"临访性心理",category:"新闻理论基础"},
+  {term:"主流化效果",category:"新闻理论基础"},
+  {term:"事件通讯",category:"新闻理论基础"},
+  {term:"事实性论据",category:"新闻理论基础"},
+  {term:"事实核查(",category:"新闻理论基础"},
+  {term:"事实核查新闻",category:"新闻理论基础"},
+  {term:"互联网受众",category:"新闻理论基础"},
+  {term:"产品",category:"新闻理论基础"},
+  {term:"人格权",category:"新闻理论基础"},
+  {term:"人物观察",category:"新闻理论基础"},
+  {term:"人身权",category:"新闻理论基础"},
+  {term:"介入性新闻",category:"新闻理论基础"},
+  {term:"付费墙",category:"新闻理论基础"},
+  {term:"众包新闻",category:"新闻理论基础"},
+  {term:"传媒侵权",category:"新闻理论基础"},
+  {term:"传媒假事件",category:"新闻理论基础"},
+  {term:"传媒无形资产",category:"新闻理论基础"},
+  {term:"传感器新闻(",category:"新闻理论基础"},
+  {term:"传播制度",category:"新闻理论基础"},
+  {term:"体制性失实",category:"新闻理论基础"},
+  {term:"体验式新闻",category:"新闻理论基础"},
+  {term:"依附理论",category:"新闻理论基础"},
+  {term:"信息乌托邦",category:"新闻理论基础"},
+  {term:"信息偶遇",category:"新闻理论基础"},
+  {term:"信息娱乐",category:"新闻理论基础"},
+  {term:"信息成瘾",category:"新闻理论基础"},
+  {term:"假借式提问",category:"新闻理论基础"},
+  {term:"元宇宙",category:"新闻理论基础"},
+  {term:"党性原则",category:"新闻理论基础"},
+  {term:"党管媒体",category:"新闻理论基础"},
+  {term:"全能型记者",category:"新闻理论基础"},
+  {term:"公共物品",category:"新闻理论基础"},
+  {term:"公民新闻",category:"新闻理论基础"},
+  {term:"具体论据",category:"新闻理论基础"},
+  {term:"典型事实",category:"新闻理论基础"},
+  {term:"典型报道(5)(新闻学部分)",category:"新闻理论基础"},
+  {term:"再现媒介",category:"新闻理论基础"},
+  {term:"准社会互动",category:"新闻理论基础"},
+  {term:"初级群体",category:"新闻理论基础"},
+  {term:"制播分离",category:"新闻理论基础"},
+  {term:"功能主义",category:"新闻理论基础"},
+  {term:"卫星新闻",category:"新闻理论基础"},
+  {term:"县级融媒体中心",category:"新闻理论基础"},
+  {term:"参与式采访",category:"新闻理论基础"},
+  {term:"参照群体",category:"新闻理论基础"},
+  {term:"双头条",category:"新闻理论基础"},
+  {term:"发展传播学(",category:"新闻理论基础"},
+  {term:"发展新闻学",category:"新闻理论基础"},
+  {term:"受众商品论",category:"新闻理论基础"},
+  {term:"受众定位",category:"新闻理论基础"},
+  {term:"受众知情权",category:"新闻理论基础"},
+  {term:"叙事蒙太奇",category:"新闻理论基础"},
+  {term:"叙事视点",category:"新闻理论基础"},
+  {term:"可穿戴新闻",category:"新闻理论基础"},
+  {term:"合理使用",category:"新闻理论基础"},
+  {term:"周边事实",category:"新闻理论基础"},
+  {term:"图片新闻",category:"新闻理论基础"},
+  {term:"地图新闻",category:"新闻理论基础"},
+  {term:"场景特写",category:"新闻理论基础"},
+  {term:"基模(5)(传播学部分)",category:"新闻理论基础"},
+  {term:"声画同步",category:"新闻理论基础"},
+  {term:"复合式结构新闻标题",category:"新闻理论基础"},
+  {term:"外化信息",category:"新闻理论基础"},
+  {term:"多伦多学派",category:"新闻理论基础"},
+  {term:"媒介化社会",category:"新闻理论基础"},
+  {term:"媒介效果",category:"新闻理论基础"},
+  {term:"媒介文化",category:"新闻理论基础"},
+  {term:"媒介时间",category:"新闻理论基础"},
+  {term:"媒介社会化",category:"新闻理论基础"},
+  {term:"媒介融合(",category:"新闻理论基础"},
+  {term:"媒介规范",category:"新闻理论基础"},
+  {term:"媒体现代化",category:"新闻理论基础"},
+  {term:"媒体的报道定位",category:"新闻理论基础"},
+  {term:"媒介等同理论",category:"新闻理论基础"},
+  {term:"字新闻",category:"新闻理论基础"},
+  {term:"宣传价值",category:"新闻理论基础"},
+  {term:"对话新闻",category:"新闻理论基础"},
+  {term:"工具理性",category:"新闻理论基础"},
+  {term:"平台",category:"新闻理论基础"},
+  {term:"平台型媒体(",category:"新闻理论基础"},
+  {term:"平衡性原则",category:"新闻理论基础"},
+  {term:"并列结构",category:"新闻理论基础"},
+  {term:"广播剧",category:"新闻理论基础"},
+  {term:"建设性监督",category:"新闻理论基础"},
+  {term:"开放式提问",category:"新闻理论基础"},
+  {term:"影像的拟真性",category:"新闻理论基础"},
+  {term:"影视传播",category:"新闻理论基础"},
+  {term:"德弗勒模式",category:"新闻理论基础"},
+  {term:"恐怖谷理论",category:"新闻理论基础"},
+  {term:"悟性事实",category:"新闻理论基础"},
+  {term:"悬念式结构",category:"新闻理论基础"},
+  {term:"意义建构",category:"新闻理论基础"},
+  {term:"符号意指",category:"新闻理论基础"},
+  {term:"意识工业",category:"新闻理论基础"},
+  {term:"意象思维",category:"新闻理论基础"},
+  {term:"慢新闻",category:"新闻理论基础"},
+  {term:"报刊的有机运动",category:"新闻理论基础"},
+  {term:"报告文学",category:"新闻理论基础"},
+  {term:"报道思想",category:"新闻理论基础"},
+  {term:"报道权",category:"新闻理论基础"},
+  {term:"报道策划(",category:"新闻理论基础"},
+  {term:"拟剧理论",category:"新闻理论基础"},
+  {term:"接近性(",category:"新闻理论基础"},
+  {term:"搭桥艺术",category:"新闻理论基础"},
+  {term:"政务新媒体",category:"新闻理论基础"},
+  {term:"政治新闻",category:"新闻理论基础"},
+  {term:"数字出版",category:"新闻理论基础"},
+  {term:"数字新闻业",category:"新闻理论基础"},
+  {term:"数字素养",category:"新闻理论基础"},
+  {term:"数据主权",category:"新闻理论基础"},
+  {term:"数据人",category:"新闻理论基础"},
+  {term:"数据化",category:"新闻理论基础"},
+  {term:"数据殖民",category:"新闻理论基础"},
+  {term:"数据素养",category:"新闻理论基础"},
+  {term:"文化中介",category:"新闻理论基础"},
+  {term:"文化契合度",category:"新闻理论基础"},
+  {term:"文化熔炉",category:"新闻理论基础"},
+  {term:"文化资本",category:"新闻理论基础"},
+  {term:"新媒体文化",category:"新闻理论基础"},
+  {term:"新媒体新闻基本原则",category:"新闻理论基础"},
+  {term:"新媒体用户特征及表现",category:"新闻理论基础"},
+  {term:"新媒体矩阵",category:"新闻理论基础"},
+  {term:"新新闻主义",category:"新闻理论基础"},
+  {term:"新闻",category:"新闻理论基础"},
+  {term:"新闻专业理念（新闻专业主义）",category:"新闻理论基础"},
+  {term:"新闻主题",category:"新闻理论基础"},
+  {term:"新闻书",category:"新闻理论基础"},
+  {term:"新闻事业的党性原则",category:"新闻理论基础"},
+  {term:"新闻事业的双重属性",category:"新闻理论基础"},
+  {term:"新闻事业的社会性",category:"新闻理论基础"},
+  {term:"新闻事实",category:"新闻理论基础"},
+  {term:"新闻事实(5)(采访部分)",category:"新闻理论基础"},
+  {term:"新闻事实的道义价值",category:"新闻理论基础"},
+  {term:"新闻五要素",category:"新闻理论基础"},
+  {term:"新闻从业者的名誉",category:"新闻理论基础"},
+  {term:"新闻从业者职业忠诚的倒金字塔模式",category:"新闻理论基础"},
+  {term:"新闻价值(",category:"新闻理论基础"},
+  {term:"新闻价值取向",category:"新闻理论基础"},
+  {term:"新闻价值的客观性",category:"新闻理论基础"},
+  {term:"新闻体制",category:"新闻理论基础"},
+  {term:"新闻信",category:"新闻理论基础"},
+  {term:"新闻偶遇",category:"新闻理论基础"},
+  {term:"新闻党性原则",category:"新闻理论基础"},
+  {term:"新闻包裹",category:"新闻理论基础"},
+  {term:"新闻发言人(5)(新闻学部分)",category:"新闻理论基础"},
+  {term:"新闻可视化",category:"新闻理论基础"},
+  {term:"新闻失实",category:"新闻理论基础"},
+  {term:"新闻客观性",category:"新闻理论基础"},
+  {term:"新闻平衡",category:"新闻理论基础"},
+  {term:"新闻控制",category:"新闻理论基础"},
+  {term:"新闻时评(",category:"新闻理论基础"},
+  {term:"新闻条线",category:"新闻理论基础"},
+  {term:"新闻标识性",category:"新闻理论基础"},
+  {term:"新闻欲",category:"新闻理论基础"},
+  {term:"新闻法制",category:"新闻理论基础"},
+  {term:"新闻流",category:"新闻理论基础"},
+  {term:"新闻游戏",category:"新闻理论基础"},
+  {term:"新闻特写",category:"新闻理论基础"},
+  {term:"新闻由头",category:"新闻理论基础"},
+  {term:"新闻策划",category:"新闻理论基础"},
+  {term:"新闻策展",category:"新闻理论基础"},
+  {term:"新闻绘本",category:"新闻理论基础"},
+  {term:"新闻统制",category:"新闻理论基础"},
+  {term:"新闻编辑互动管理",category:"新闻理论基础"},
+  {term:"新闻编辑方针",category:"新闻理论基础"},
+  {term:"新闻职业道德(5)(新闻学部分)",category:"新闻理论基础"},
+  {term:"新闻自由",category:"新闻理论基础"},
+  {term:"新闻舆论“四力”",category:"新闻理论基础"},
+  {term:"新闻舆论监督",category:"新闻理论基础"},
+  {term:"新闻角度(",category:"新闻理论基础"},
+  {term:"新闻评论的价值判断",category:"新闻理论基础"},
+  {term:"新闻评论的观点",category:"新闻理论基础"},
+  {term:"新闻诽谤",category:"新闻理论基础"},
+  {term:"新闻选择",category:"新闻理论基础"},
+  {term:"新闻道德(",category:"新闻理论基础"},
+  {term:"新闻道德层面的虚假新闻",category:"新闻理论基础"},
+  {term:"新闻采访权",category:"新闻理论基础"},
+  {term:"新闻风险",category:"新闻理论基础"},
+  {term:"新闻鼻",category:"新闻理论基础"},
+  {term:"旅行采访",category:"新闻理论基础"},
+  {term:"时度效原则",category:"新闻理论基础"},
+  {term:"时政新闻",category:"新闻理论基础"},
+  {term:"时评",category:"新闻理论基础"},
+  {term:"景别",category:"新闻理论基础"},
+  {term:"景深",category:"新闻理论基础"},
+  {term:"智媒体",category:"新闻理论基础"},
+  {term:"智媒技术",category:"新闻理论基础"},
+  {term:"智能传播(5)(传播学部分)",category:"新闻理论基础"},
+  {term:"智能体新闻",category:"新闻理论基础"},
+  {term:"智能分发",category:"新闻理论基础"},
+  {term:"智能新闻生产",category:"新闻理论基础"},
+  {term:"机动记者",category:"新闻理论基础"},
+  {term:"机器人写作",category:"新闻理论基础"},
+  {term:"机器写作",category:"新闻理论基础"},
+  {term:"杂耍蒙太奇",category:"新闻理论基础"},
+  {term:"概括式导语",category:"新闻理论基础"},
+  {term:"模式",category:"新闻理论基础"},
+  {term:"民生新闻",category:"新闻理论基础"},
+  {term:"沉浸新闻",category:"新闻理论基础"},
+  {term:"流动空间",category:"新闻理论基础"},
+  {term:"消费社会",category:"新闻理论基础"},
+  {term:"液态新闻",category:"新闻理论基础"},
+  {term:"深度合成",category:"新闻理论基础"},
+  {term:"深度媒介化",category:"新闻理论基础"},
+  {term:"混剪",category:"新闻理论基础"},
+  {term:"清朗行动",category:"新闻理论基础"},
+  {term:"湘江评论",category:"新闻理论基础"},
+  {term:"漫画新闻",category:"新闻理论基础"},
+  {term:"版式",category:"新闻理论基础"},
+  {term:"版权",category:"新闻理论基础"},
+  {term:"版面",category:"新闻理论基础"},
+  {term:"版面强势",category:"新闻理论基础"},
+  {term:"版面空间",category:"新闻理论基础"},
+  {term:"现场观察",category:"新闻理论基础"},
+  {term:"珠江模式",category:"新闻理论基础"},
+  {term:"理论性论据",category:"新闻理论基础"},
+  {term:"用事实说理",category:"新闻理论基础"},
+  {term:"直接式导语",category:"新闻理论基础"},
+  {term:"真人秀",category:"新闻理论基础"},
+  {term:"短实新",category:"新闻理论基础"},
+  {term:"短视频",category:"新闻理论基础"},
+  {term:"短视频新闻",category:"新闻理论基础"},
+  {term:"社会关系论",category:"新闻理论基础"},
+  {term:"社会参与论",category:"新闻理论基础"},
+  {term:"社会合意",category:"新闻理论基础"},
+  {term:"移动记者",category:"新闻理论基础"},
+  {term:"空镜头",category:"新闻理论基础"},
+  {term:"空间媒介",category:"新闻理论基础"},
+  {term:"空间波传播",category:"新闻理论基础"},
+  {term:"突发公共事件(5)(新闻学部分)",category:"新闻理论基础"},
+  {term:"突发性新闻",category:"新闻理论基础"},
+  {term:"符号与意义",category:"新闻理论基础"},
+  {term:"符号暴力(",category:"新闻理论基础"},
+  {term:"第三代导语",category:"新闻理论基础"},
+  {term:"第三文化人",category:"新闻理论基础"},
+  {term:"策划性新闻",category:"新闻理论基础"},
+  {term:"策略式仪式",category:"新闻理论基础"},
+  {term:"节目类型化",category:"新闻理论基础"},
+  {term:"粉丝经济(",category:"新闻理论基础"},
+  {term:"精确传播",category:"新闻理论基础"},
+  {term:"精神生产",category:"新闻理论基础"},
+  {term:"系列报道",category:"新闻理论基础"},
+  {term:"纪录片",category:"新闻理论基础"},
+  {term:"纯新闻",category:"新闻理论基础"},
+  {term:"纵深场面调度",category:"新闻理论基础"},
+  {term:"组织传播",category:"新闻理论基础"},
+  {term:"经济新闻",category:"新闻理论基础"},
+  {term:"网上理政",category:"新闻理论基础"},
+  {term:"网络采访",category:"新闻理论基础"},
+  {term:"网络专题报道",category:"新闻理论基础"},
+  {term:"网络微短剧",category:"新闻理论基础"},
+  {term:"网络文化",category:"新闻理论基础"},
+  {term:"网络新闻",category:"新闻理论基础"},
+  {term:"网络新闻专题",category:"新闻理论基础"},
+  {term:"网络新闻直播",category:"新闻理论基础"},
+  {term:"网络舆情",category:"新闻理论基础"},
+  {term:"群体传播",category:"新闻理论基础"},
+  {term:"群体动力论",category:"新闻理论基础"},
+  {term:"群体思维",category:"新闻理论基础"},
+  {term:"群体承诺",category:"新闻理论基础"},
+  {term:"群体暗示",category:"新闻理论基础"},
+  {term:"群体极化",category:"新闻理论基础"},
+  {term:"群体性迷失",category:"新闻理论基础"},
+  {term:"耳目喉舌",category:"新闻理论基础"},
+  {term:"自媒体",category:"新闻理论基础"},
+  {term:"舆论场",category:"新闻理论基础"},
+  {term:"舆论监督(5",category:"新闻理论基础"},
+  {term:"舆论监督(5)(新闻学部分)",category:"新闻理论基础"},
+  {term:"蒙太奇",category:"新闻理论基础"},
+  {term:"融合媒体",category:"新闻理论基础"},
+  {term:"被遗忘权",category:"新闻理论基础"},
+  {term:"视觉符号",category:"新闻理论基础"},
+  {term:"视频化社会",category:"新闻理论基础"},
+  {term:"视频新闻",category:"新闻理论基础"},
+  {term:"解释性报道(5)(采访部分)",category:"新闻理论基础"},
+  {term:"符号解释项",category:"新闻理论基础"},
+  {term:"计算传播学",category:"新闻理论基础"},
+  {term:"让步策略",category:"新闻理论基础"},
+  {term:"记者的主体意识",category:"新闻理论基础"},
+  {term:"记者的信息意识",category:"新闻理论基础"},
+  {term:"记者的修养",category:"新闻理论基础"},
+  {term:"评论性按语",category:"新闻理论基础"},
+  {term:"话语(5)(新闻学部分)",category:"新闻理论基础"},
+  {term:"话语体系",category:"新闻理论基础"},
+  {term:"调查性报道",category:"新闻理论基础"},
+  {term:"象征行为",category:"新闻理论基础"},
+  {term:"趣缘群体",category:"新闻理论基础"},
+  {term:"跑线记者",category:"新闻理论基础"},
+  {term:"跨版",category:"新闻理论基础"},
+  {term:"轮廓光",category:"新闻理论基础"},
+  {term:"轴线规律",category:"新闻理论基础"},
+  {term:"远生通讯",category:"新闻理论基础"},
+  {term:"连续报道",category:"新闻理论基础"},
+  {term:"迭代新闻",category:"新闻理论基础"},
+  {term:"述评消息",category:"新闻理论基础"},
+  {term:"避风港原则",category:"新闻理论基础"},
+  {term:"采编经营分离",category:"新闻理论基础"},
+  {term:"采访作风",category:"新闻理论基础"},
+  {term:"采访核实",category:"新闻理论基础"},
+  {term:"镜中我理论",category:"新闻理论基础"},
+  {term:"隐私权",category:"新闻理论基础"},
+  {term:"集中式版面",category:"新闻理论基础"},
+  {term:"静态构图",category:"新闻理论基础"},
+  {term:"非事实性消息",category:"新闻理论基础"},
+  {term:"非虚构写作",category:"新闻理论基础"},
+  {term:"非虚构影像",category:"新闻理论基础"},
+  {term:"预测性报道",category:"新闻理论基础"},
+  {term:"频道意识",category:"新闻理论基础"},
+  {term:"风貌通讯",category:"新闻理论基础"},
+  {term:"高语境文化",category:"新闻理论基础"},
+  {term:"鸡尾酒式提问",category:"新闻理论基础"},
+  {term:"媒介依存症",category:"传播理论基础"},
+  {term:"议程设置理论",category:"传播理论基础"},
+  {term:"符号互动理论",category:"传播理论基础"},
+  {term:"媒介即讯息",category:"传播理论基础"},
+  {term:"数字劳动",category:"传播理论基础"},
+  {term:"人际传播",category:"传播理论基础"},
+  {term:"意见领袖",category:"传播理论基础"},
+  {term:"文化帝国主义",category:"传播理论基础"},
+  {term:"社会责任理论",category:"传播理论基础"},
+  {term:"镜中我",category:"传播理论基础"},
+  {term:"元传播",category:"传播理论基础"},
+  {term:"分众",category:"传播理论基础"},
+  {term:"媒介事件",category:"传播理论基础"},
+  {term:"政治经济学派",category:"传播理论基础"},
+  {term:"施拉姆",category:"传播理论基础"},
+  {term:"舆论",category:"传播理论基础"},
+  {term:"创新扩散理论",category:"传播理论基础"},
+  {term:"东方主义",category:"传播理论基础"},
+  {term:"两级传播",category:"传播理论基础"},
+  {term:"主我与客我",category:"传播理论基础"},
+  {term:"休眠效应",category:"传播理论基础"},
+  {term:"传播情境",category:"传播理论基础"},
+  {term:"传播的游戏观",category:"传播理论基础"},
+  {term:"使用与满足",category:"传播理论基础"},
+  {term:"全球传播",category:"传播理论基础"},
+  {term:"全球南方",category:"传播理论基础"},
+  {term:"公共传播",category:"传播理论基础"},
+  {term:"公共领域",category:"传播理论基础"},
+  {term:"刻板印象",category:"传播理论基础"},
+  {term:"国际传播",category:"传播理论基础"},
+  {term:"基模",category:"传播理论基础"},
+  {term:"大众传播",category:"传播理论基础"},
+  {term:"媒介基础设施",category:"传播理论基础"},
+  {term:"媒介环境学派",category:"传播理论基础"},
+  {term:"媒体公信力",category:"传播理论基础"},
+  {term:"库利",category:"传播理论基础"},
+  {term:"沉默的螺旋",category:"传播理论基础"},
+  {term:"法兰克福学派",category:"传播理论基础"},
+  {term:"知沟",category:"传播理论基础"},
+  {term:"传播仪式观",category:"传播理论基础"},
+  {term:"媒介情境论",category:"传播理论基础"},
+  {term:"想象共同体",category:"传播理论基础"},
+  {term:"意见的自由市场",category:"传播理论基础"},
+  {term:"编码与解码",category:"传播理论基础"},
+  {term:"自我互动理论",category:"传播理论基础"},
+  {term:"罗杰斯",category:"传播理论基础"},
+  {term:"“奥斯古德-施拉姆”循环模式",category:"传播理论基础"},
+  {term:"“数字化生存”",category:"传播理论基础"},
+  {term:"“珠江模式”",category:"传播理论基础"},
+  {term:"《新闻出版自由》",category:"传播理论基础"},
+  {term:"《论出版自由》",category:"传播理论基础"},
+  {term:"一面提示与两面提示",category:"传播理论基础"},
+  {term:"一面提示与两面提示定义和区别",category:"传播理论基础"},
+  {term:"下行传播",category:"传播理论基础"},
+  {term:"两面提示",category:"传播理论基础"},
+  {term:"乐队花车效应",category:"传播理论基础"},
+  {term:"互动仪式链",category:"传播理论基础"},
+  {term:"互文性",category:"传播理论基础"},
+  {term:"亲身传播",category:"传播理论基础"},
+  {term:"人内传播",category:"传播理论基础"},
+  {term:"人际传播社会交换理论",category:"传播理论基础"},
+  {term:"睡眠效应",category:"传播理论基础"},
+  {term:"传播流",category:"传播理论基础"},
+  {term:"传播隔阂",category:"传播理论基础"},
+  {term:"信源",category:"传播理论基础"},
+  {term:"健康传播",category:"传播理论基础"},
+  {term:"光环效应",category:"传播理论基础"},
+  {term:"光辉泛化法",category:"传播理论基础"},
+  {term:"全球化",category:"传播理论基础"},
+  {term:"全球本土化",category:"传播理论基础"},
+  {term:"创造性破坏",category:"传播理论基础"},
+  {term:"刺激-反应理论",category:"传播理论基础"},
+  {term:"刺点",category:"传播理论基础"},
+  {term:"单向度的人",category:"传播理论基础"},
+  {term:"曼纽尔·卡斯特",category:"传播理论基础"},
+  {term:"印象整饰",category:"传播理论基础"},
+  {term:"危机传播",category:"传播理论基础"},
+  {term:"城市传播",category:"传播理论基础"},
+  {term:"可供性",category:"传播理论基础"},
+  {term:"名片效应",category:"传播理论基础"},
+  {term:"哈贝马斯",category:"传播理论基础"},
+  {term:"国际传播能力",category:"传播理论基础"},
+  {term:"大众麦克风",category:"传播理论基础"},
+  {term:"头部效应",category:"传播理论基础"},
+  {term:"娱乐至死",category:"传播理论基础"},
+  {term:"媒介依附理论",category:"传播理论基础"},
+  {term:"媒介公信力",category:"传播理论基础"},
+  {term:"媒介即人的延伸",category:"传播理论基础"},
+  {term:"媒介即隐喻",category:"传播理论基础"},
+  {term:"媒介市场",category:"传播理论基础"},
+  {term:"媒介帝国主义(",category:"传播理论基础"},
+  {term:"媒介批评",category:"传播理论基础"},
+  {term:"媒介规范理论",category:"传播理论基础"},
+  {term:"媒介资本运营",category:"传播理论基础"},
+  {term:"波兹曼",category:"传播理论基础"},
+  {term:"属性议程设置",category:"传播理论基础"},
+  {term:"库里肖夫效应",category:"传播理论基础"},
+  {term:"弱关系",category:"传播理论基础"},
+  {term:"想象可供性",category:"传播理论基础"},
+  {term:"意识形态主体",category:"传播理论基础"},
+  {term:"意识形态国家机器",category:"传播理论基础"},
+  {term:"拉扎斯菲尔德",category:"传播理论基础"},
+  {term:"拉斯韦尔5W模式",category:"传播理论基础"},
+  {term:"数字资本主义",category:"传播理论基础"},
+  {term:"新闻出版自由的相对性",category:"传播理论基础"},
+  {term:"施拉姆(",category:"传播理论基础"},
+  {term:"显在舆论",category:"传播理论基础"},
+  {term:"本雅明",category:"传播理论基础"},
+  {term:"李普曼",category:"传播理论基础"},
+  {term:"民主参与理论",category:"传播理论基础"},
+  {term:"流言",category:"传播理论基础"},
+  {term:"流言传播",category:"传播理论基础"},
+  {term:"流言公式",category:"传播理论基础"},
+  {term:"皮下注射论",category:"传播理论基础"},
+  {term:"社会信息系统",category:"传播理论基础"},
+  {term:"社会渗透理论",category:"传播理论基础"},
+  {term:"科学传播",category:"传播理论基础"},
+  {term:"米德",category:"传播理论基础"},
+  {term:"精神交往理论",category:"传播理论基础"},
+  {term:"编码解码",category:"传播理论基础"},
+  {term:"网络议程设置",category:"传播理论基础"},
+  {term:"能指",category:"传播理论基础"},
+  {term:"自我建构",category:"传播理论基础"},
+  {term:"自我表露",category:"传播理论基础"},
+  {term:"自我量化",category:"传播理论基础"},
+  {term:"自由主义报刊理论",category:"传播理论基础"},
+  {term:"舆论极化",category:"传播理论基础"},
+  {term:"英尼斯媒介偏向",category:"传播理论基础"},
+  {term:"虚假共识效应",category:"传播理论基础"},
+  {term:"行动者网络",category:"传播理论基础"},
+  {term:"议程融合",category:"传播理论基础"},
+  {term:"讯息",category:"传播理论基础"},
+  {term:"话语研究",category:"传播理论基础"},
+  {term:"拟像与仿真",category:"传播理论基础"},
+  {term:"选择性接触",category:"传播理论基础"},
+  {term:"隐私计算",category:"传播理论基础"},
+  {term:"霍夫兰",category:"传播理论基础"},
+  {term:"霍桑效应",category:"传播理论基础"},
+  {term:"香农韦弗模式",category:"传播理论基础"},
+  {term:"AIGC",category:"网络传播"},
+  {term:"具身传播",category:"网络传播"},
+  {term:"后真相",category:"网络传播"},
+  {term:"媒介可供性",category:"网络传播"},
+  {term:"媒介考古学",category:"网络传播"},
+  {term:"数字鸿沟",category:"网络传播"},
+  {term:"人机传播",category:"网络传播"},
+  {term:"场景传播",category:"网络传播"},
+  {term:"数字人文",category:"网络传播"},
+  {term:"数字劳工",category:"网络传播"},
+  {term:"数字游民",category:"网络传播"},
+  {term:"智能传播",category:"网络传播"},
+  {term:"社交媒体倦怠",category:"网络传播"},
+  {term:"计算宣传",category:"网络传播"},
+  {term:"过滤气泡",category:"网络传播"},
+  {term:"chatgpt",category:"网络传播"},
+  {term:"共情传播",category:"网络传播"},
+  {term:"后真相时代",category:"网络传播"},
+  {term:"媒介化",category:"网络传播"},
+  {term:"数字身份",category:"网络传播"},
+  {term:"文本盗猎",category:"网络传播"},
+  {term:"智能体",category:"网络传播"},
+  {term:"模因",category:"网络传播"},
+  {term:"社交媒体",category:"网络传播"},
+  {term:"算法推荐",category:"网络传播"},
+  {term:"人机协同",category:"网络传播"},
+  {term:"数字断连",category:"网络传播"},
+  {term:"虚拟数字人",category:"网络传播"},
+  {term:"AI深度伪造",category:"网络传播"},
+  {term:"AR",category:"网络传播"},
+  {term:"ChatGPT",category:"网络传播"},
+  {term:"ChatGpt",category:"网络传播"},
+  {term:"社交网络服务SNS",category:"网络传播"},
+  {term:"VR",category:"网络传播"},
+  {term:"Z世代",category:"网络传播"},
+  {term:"aigc",category:"网络传播"},
+  {term:"互动直播",category:"网络传播"},
+  {term:"产消者",category:"网络传播"},
+  {term:"人工智能",category:"网络传播"},
+  {term:"人工智能价值对齐",category:"网络传播"},
+  {term:"人工智能营销",category:"网络传播"},
+  {term:"位置媒介",category:"网络传播"},
+  {term:"信息地缘政治",category:"网络传播"},
+  {term:"图灵测试",category:"网络传播"},
+  {term:"场景化传播",category:"网络传播"},
+  {term:"复媒体",category:"网络传播"},
+  {term:"多媒体矩阵",category:"网络传播"},
+  {term:"媒介仪式",category:"网络传播"},
+  {term:"媒介动员",category:"网络传播"},
+  {term:"媒介化治理",category:"网络传播"},
+  {term:"媒介实践",category:"网络传播"},
+  {term:"平台资本主义",category:"网络传播"},
+  {term:"异质性网络",category:"网络传播"},
+  {term:"微传播",category:"网络传播"},
+  {term:"恐怖谷",category:"网络传播"},
+  {term:"恐怖谷效应",category:"网络传播"},
+  {term:"慢直播",category:"网络传播"},
+  {term:"技能分享类短视频",category:"网络传播"},
+  {term:"数字实证主义",category:"网络传播"},
+  {term:"数字怀旧",category:"网络传播"},
+  {term:"数字排毒",category:"网络传播"},
+  {term:"数字移民",category:"网络传播"},
+  {term:"数字赋能",category:"网络传播"},
+  {term:"智能涌现",category:"网络传播"},
+  {term:"沉浸式传播",category:"网络传播"},
+  {term:"混合认知战争",category:"网络传播"},
+  {term:"生成式AI",category:"网络传播"},
+  {term:"界面",category:"网络传播"},
+  {term:"社交机器人",category:"网络传播"},
+  {term:"算力",category:"网络传播"},
+  {term:"算法偏见",category:"网络传播"},
+  {term:"算法抵抗",category:"网络传播"},
+  {term:"算法疲倦",category:"网络传播"},
+  {term:"网络个人主义",category:"网络传播"},
+  {term:"网络主播",category:"网络传播"},
+  {term:"网络公共空间",category:"网络传播"},
+  {term:"网络媒体",category:"网络传播"},
+  {term:"网络暴力",category:"网络传播"},
+  {term:"网络群体传播",category:"网络传播"},
+  {term:"虚拟现实",category:"网络传播"},
+  {term:"视听率",category:"网络传播"},
+  {term:"计算机中介传播",category:"网络传播"},
+  {term:"语音智能交互",category:"网络传播"},
+  {term:"超文本",category:"网络传播"},
+  {term:"身联网",category:"网络传播"},
+  {term:"过滤气泡效应",category:"网络传播"},
+  {term:"高选择媒介环境",category:"网络传播"},
+  {term:"精确新闻报道",category:"新闻史"},
+  {term:"邹韬奋",category:"新闻史"},
+  {term:"华尔街日报体",category:"新闻史"},
+  {term:"《新青年》",category:"新闻史"},
+  {term:"时务文体",category:"新闻史"},
+  {term:"CGTN",category:"新闻史"},
+  {term:"《新莱茵报》",category:"新闻史"},
+  {term:"癸丑报灾",category:"新闻史"},
+  {term:"竖三民",category:"新闻史"},
+  {term:"范长江",category:"新闻史"},
+  {term:"黄色新闻",category:"新闻史"},
+  {term:"黄远生",category:"新闻史"},
+  {term:"东西洋考每月统记传",category:"新闻史"},
+  {term:"启蒙辩证法",category:"新闻史"},
+  {term:"《新华日报》",category:"新闻史"},
+  {term:"便士报",category:"新闻史"},
+  {term:"循环日报",category:"新闻史"},
+  {term:"拒检运动",category:"新闻史"},
+  {term:"新黄色新闻",category:"新闻史"},
+  {term:"林白水",category:"新闻史"},
+  {term:"火星报",category:"新闻史"},
+  {term:"红色中华通讯社",category:"新闻史"},
+  {term:"苏报案",category:"新闻史"},
+  {term:"英国纪录电影运动",category:"新闻史"},
+  {term:"邵飘萍",category:"新闻史"},
+  {term:"长江韬奋奖",category:"新闻史"},
+  {term:"露布",category:"新闻史"},
+  {term:"《中国的西北角》",category:"新闻史"},
+  {term:"《真理报》",category:"新闻史"},
+  {term:"遐迩贯珍",category:"新闻史"},
+  {term:"反客里空运动",category:"新闻史"},
+  {term:"中央广播电视总台",category:"新闻史"},
+  {term:"《中国报学史》",category:"新闻史"},
+  {term:"北京青年报",category:"新闻史"},
+  {term:"《大公报》的“四不”方针",category:"新闻史"},
+  {term:"大清报律",category:"新闻史"},
+  {term:"延安文艺座谈会讲话",category:"新闻史"},
+  {term:"时代周刊",category:"新闻史"},
+  {term:"《时务报》",category:"新闻史"},
+  {term:"权力的媒介",category:"新闻史"},
+  {term:"《民报》",category:"新闻史"},
+  {term:"《泰晤士报》",category:"新闻史"},
+  {term:"《申报》",category:"新闻史"},
+  {term:"三边四社协定",category:"新闻史"},
+  {term:"京报",category:"新闻史"},
+  {term:"全党办报",category:"新闻史"},
+  {term:"华尔街日报",category:"新闻史"},
+  {term:"印花税",category:"新闻史"},
+  {term:"古登堡",category:"新闻史"},
+  {term:"史量才",category:"新闻史"},
+  {term:"向导周报",category:"新闻史"},
+  {term:"新闻自由委员会",category:"新闻史"},
+  {term:"大公报",category:"新闻史"},
+  {term:"天变邸抄",category:"新闻史"},
+  {term:"威尼斯公报",category:"新闻史"},
+  {term:"宋代小报",category:"新闻史"},
+  {term:"官刻",category:"新闻史"},
+  {term:"密苏里帮",category:"新闻史"},
+  {term:"帛书",category:"新闻史"},
+  {term:"帝国与传播",category:"新闻史"},
+  {term:"彭博社",category:"新闻史"},
+  {term:"徐宝璜",category:"新闻史"},
+  {term:"徐宝璜(",category:"新闻史"},
+  {term:"扒粪运动",category:"新闻史"},
+  {term:"报人王芸生",category:"新闻史"},
+  {term:"掏粪运动",category:"新闻史"},
+  {term:"政治周报",category:"新闻史"},
+  {term:"政治家办报",category:"新闻史"},
+  {term:"新华体",category:"新闻史"},
+  {term:"新闻报道策划",category:"新闻史"},
+  {term:"时务报",category:"新闻史"},
+  {term:"星法院法令",category:"新闻史"},
+  {term:"晨报副刊",category:"新闻史"},
+  {term:"暂行报律事件",category:"新闻史"},
+  {term:"曾格案件",category:"新闻史"},
+  {term:"梁启超",category:"新闻史"},
+  {term:"槐市",category:"新闻史"},
+  {term:"每日纪闻",category:"新闻史"},
+  {term:"民初三大名记者",category:"新闻史"},
+  {term:"法新社",category:"新闻史"},
+  {term:"泰晤士报",category:"新闻史"},
+  {term:"清议",category:"新闻史"},
+  {term:"炉边谈话",category:"新闻史"},
+  {term:"热血日报",category:"新闻史"},
+  {term:"知新报",category:"新闻史"},
+  {term:"神州日报",category:"新闻史"},
+  {term:"纽约时报",category:"新闻史"},
+  {term:"胡政之",category:"新闻史"},
+  {term:"苏报案(",category:"新闻史"},
+  {term:"英国印花税法案",category:"新闻史"},
+  {term:"进奏院状",category:"新闻史"},
+  {term:"迪斯尼公司",category:"新闻史"},
+  {term:"邸报",category:"新闻史"},
+  {term:"郑观应",category:"新闻史"},
+  {term:"阅报社",category:"新闻史"},
+  {term:"阿道夫·奥克斯",category:"新闻史"},
+  {term:"黄远生“四功能说”",category:"新闻史"},
+  {term:"用户画像",category:"广告营销"},
+  {term:"跨媒介叙事",category:"广告营销"},
+  {term:"长尾理论",category:"广告营销"},
+  {term:"信息流广告",category:"广告营销"},
+  {term:"内容营销",category:"广告营销"},
+  {term:"场景营销",category:"广告营销"},
+  {term:"程序化购买",category:"广告营销"},
+  {term:"精准营销",category:"广告营销"},
+  {term:"计算广告",category:"广告营销"},
+  {term:"产品生命周期",category:"广告营销"},
+  {term:"市场细分",category:"广告营销"},
+  {term:"4C理论",category:"广告营销"},
+  {term:"AIDAS模式",category:"广告营销"},
+  {term:"Niche audience",category:"广告营销"},
+  {term:"实时竞价RTB",category:"广告营销"},
+  {term:"USP理论",category:"广告营销"},
+  {term:"二次售卖",category:"广告营销"},
+  {term:"互联网广告",category:"广告营销"},
+  {term:"产品差异化",category:"广告营销"},
+  {term:"企业广告",category:"广告营销"},
+  {term:"体验式营销",category:"广告营销"},
+  {term:"全域营销",category:"广告营销"},
+  {term:"创意五部曲",category:"广告营销"},
+  {term:"原生广告(",category:"广告营销"},
+  {term:"品牌年轻化",category:"广告营销"},
+  {term:"品牌形象代言",category:"广告营销"},
+  {term:"品牌意识",category:"广告营销"},
+  {term:"品牌接触点",category:"广告营销"},
+  {term:"品牌认知",category:"广告营销"},
+  {term:"垂直思维",category:"广告营销"},
+  {term:"头脑风暴法",category:"广告营销"},
+  {term:"媒介品牌",category:"广告营销"},
+  {term:"媒介品牌资产",category:"广告营销"},
+  {term:"媒介记忆",category:"广告营销"},
+  {term:"媒体记忆",category:"广告营销"},
+  {term:"定位理论",category:"广告营销"},
+  {term:"定制营销",category:"广告营销"},
+  {term:"广告交易平台 ADX",category:"广告营销"},
+  {term:"广告代理制(",category:"广告营销"},
+  {term:"广告创意的陌生化",category:"广告营销"},
+  {term:"广告可见度",category:"广告营销"},
+  {term:"广告回避",category:"广告营销"},
+  {term:"广告定位",category:"广告营销"},
+  {term:"广告市场",category:"广告营销"},
+  {term:"广告效果",category:"广告营销"},
+  {term:"广告程序化购买基本内容",category:"广告营销"},
+  {term:"广告组织",category:"广告营销"},
+  {term:"广告自律",category:"广告营销"},
+  {term:"广告调查",category:"广告营销"},
+  {term:"报刊广告文案",category:"广告营销"},
+  {term:"整合营销",category:"广告营销"},
+  {term:"新闻性广告",category:"广告营销"},
+  {term:"植入式广告",category:"广告营销"},
+  {term:"注意力经济",category:"广告营销"},
+  {term:"消费者认同",category:"广告营销"},
+  {term:"用户思维",category:"广告营销"},
+  {term:"病毒营销",category:"广告营销"},
+  {term:"直播营销",category:"广告营销"},
+  {term:"算法认知战",category:"广告营销"},
+  {term:"精准广告/精准投放",category:"广告营销"},
+  {term:"网络广告",category:"广告营销"},
+  {term:"自品牌",category:"广告营销"},
+  {term:"认知战",category:"广告营销"},
+  {term:"钻石模型",category:"广告营销"},
+  {term:"集中化战略",category:"广告营销"},
+  {term:"网络民族志",category:"研究方法"},
+  {term:"分层抽样",category:"研究方法"},
+  {term:"控制实验法",category:"研究方法"},
+  {term:"分类抽样法",category:"研究方法"},
+  {term:"实证研究",category:"研究方法"},
+  {term:"扎根理论",category:"研究方法"},
+  {term:"扎根美学",category:"研究方法"},
+  {term:"抽样误差",category:"研究方法"},
+  {term:"整群抽样",category:"研究方法"},
+  {term:"文化研究范式",category:"研究方法"},
+  {term:"李克特量表",category:"研究方法"},
+  {term:"样本",category:"研究方法"},
+  {term:"欣赏指数",category:"研究方法"},
+  {term:"滚雪球抽样",category:"研究方法"},
+  {term:"焦点小组法",category:"研究方法"},
+  {term:"判断抽样",category:"研究方法"},
+  {term:"系统抽样",category:"研究方法"},
+  {term:"虚拟民族志",category:"研究方法"},
+  {term:"质化研究",category:"研究方法"},
+  {term:"IPTV",category:"年度热点"},
+  {term:"数字适老化",category:"年度热点"},
+  {term:"新闻建构理论",category:"其他"},
+  {term:"热媒介与冷媒介",category:"其他"},
+  {term:"媒介偏向论",category:"其他"},
+  {term:"5W",category:"其他"},
+  {term:"Media Ecology",category:"其他"},
+  {term:"PMI",category:"其他"},
+  {term:"Vlog 新闻",category:"其他"},
+  {term:"互动电视ITV",category:"其他"},
+  {term:"vr影视艺术",category:"其他"},
+  {term:"“休眠”效果",category:"其他"},
+  {term:"“新闻手段”",category:"其他"},
+  {term:"《万历邸抄》",category:"其他"},
+  {term:"《县委书记的榜样—焦裕禄》",category:"其他"},
+  {term:"《大众日报》",category:"其他"},
+  {term:"《对晋绥日报编辑人员的谈话》",category:"其他"},
+  {term:"《新生》事件",category:"其他"},
+  {term:"《湘江评论》",category:"其他"},
+  {term:"三色报道",category:"其他"},
+  {term:"三角定位",category:"其他"},
+  {term:"中国新闻纪录电影制片厂",category:"其他"},
+  {term:"为这条评论拟标题",category:"其他"},
+  {term:"书院评论员文章",category:"其他"},
+  {term:"亚里士多德的修辞术",category:"其他"},
+  {term:"公共广播电视",category:"其他"},
+  {term:"公益活动",category:"其他"},
+  {term:"共通的意义空间",category:"其他"},
+  {term:"反“客里空”",category:"其他"},
+  {term:"反馈",category:"其他"},
+  {term:"可灵",category:"其他"},
+  {term:"品牌核心价值",category:"其他"},
+  {term:"品牌生命周期",category:"其他"},
+  {term:"四不方针",category:"其他"},
+  {term:"回声室效应",category:"其他"},
+  {term:"国家广电总局“双治理”工作",category:"其他"},
+  {term:"场景经济",category:"其他"},
+  {term:"埃德加·斯诺",category:"其他"},
+  {term:"媒介依赖理论",category:"其他"},
+  {term:"宋代的“小报”",category:"其他"},
+  {term:"官方《京报》",category:"其他"},
+  {term:"定向需求(5",category:"其他"},
+  {term:"实题与虚题",category:"其他"},
+  {term:"宣传",category:"其他"},
+  {term:"罗伯特·帕克",category:"其他"},
+  {term:"广告理性诉求",category:"其他"},
+  {term:"延安广播电视台",category:"其他"},
+  {term:"异质性原理",category:"其他"},
+  {term:"情动媒介",category:"其他"},
+  {term:"攀附比较广告",category:"其他"},
+  {term:"敌意媒介感知",category:"其他"},
+  {term:"数字地图",category:"其他"},
+  {term:"数字媒体时代需求与动机对购买行为的影响",category:"其他"},
+  {term:"文化指标研究",category:"其他"},
+  {term:"新修辞学",category:"其他"},
+  {term:"新闻发现的实践情境",category:"其他"},
+  {term:"新闻采写中的“价值原则",category:"其他"},
+  {term:"既有政治倾向指数",category:"其他"},
+  {term:"时报",category:"其他"},
+  {term:"有偿新闻有偿不闻",category:"其他"},
+  {term:"柏拉图洞穴隐喻",category:"其他"},
+  {term:"沃特尔",category:"其他"},
+  {term:"波士顿新闻信札",category:"其他"},
+  {term:"消息源保密权",category:"其他"},
+  {term:"灰犀牛事件",category:"其他"},
+  {term:"社会地位赋予功能",category:"其他"},
+  {term:"符号的三元关系",category:"其他"},
+  {term:"类比推理",category:"其他"},
+  {term:"粉丝民族主义",category:"其他"},
+  {term:"给这条评论做评语",category:"其他"},
+  {term:"艺术形象",category:"其他"},
+  {term:"葵丑报灾",category:"其他"},
+  {term:"视觉传播",category:"其他"},
+  {term:"计划行为理论",category:"其他"},
+  {term:"认知不和谐理论",category:"其他"},
+  {term:"评论写作的批评性思维",category:"其他"},
+  {term:"评论写作题目",category:"其他"},
+  {term:"试推法",category:"其他"},
+  {term:"谈话实录型通讯的访与谈",category:"其他"},
+  {term:"隐私悖论",category:"其他"},
+  {term:"隐私疲劳",category:"其他"},
+  {term:"马克思主义精神交往论",category:"其他"},
+];
+
+const STORAGE_KEY = "xc_kaoyan_terms";
+const SRS_KEY = "xc_kaoyan_srs";
+const ANSWER_CACHE_KEY = "xc_kaoyan_answer_cache";
+const FAV_KEY = "xc_kaoyan_favs";
+const APIKEY_KEY = "xc_kaoyan_apikey";
+const MODE_KEY = "xc_kaoyan_mode";
+const CAT_KEY = "xc_kaoyan_cat";
+const DAILY_GOAL_KEY = "xc_kaoyan_daily_goal";
+const DAILY_LOG_KEY = "xc_kaoyan_daily_log";
+
+let dailyGoal = 20;
+let dailyLog = {}; // {"2026-10-03": {reviewed: 20, completed: true}}
+
+let terms = [];
+let srsData = {};
+let answerCache = {};
+let favSet = {}; // {term: true/false}
+let currentCat = "全部";
+let currentMode = "srs";
+let currentIdx = 0;
+let filteredTerms = [];
+let _hasNavigated = false; // 是否手动导航过（SRS模式下用于判断是否还自动跳转到到期词）
+
+// ========== 全局错误捕获 ==========
+window.addEventListener("error", function(e){
+  console.error("全局错误:", e.message, e.filename, e.lineno);
+});
+window.addEventListener("unhandledrejection", function(e){
+  console.error("Promise未处理:", e.reason);
+});
+
+// ========== 初始化 ==========
+function init(){
+  try{
+    loadData();
+    loadApiKey();
+
+    const savedMode = localStorage.getItem(MODE_KEY);
+    if(savedMode) currentMode = savedMode;
+    const savedCat = localStorage.getItem(CAT_KEY);
+    if(savedCat) currentCat = savedCat;
+
+    buildQueue();
+    renderCategories();
+    renderModeButtons();
+    showTerm();
+    updateStats();
+    bindKeys();
+    renderDailyGoal();
+    renderStreak();
+
+    // 滚动时顶栏加边框
+    window.addEventListener("scroll", ()=>{
+      const tb = document.getElementById("topbar");
+      if(window.scrollY > 4) tb.classList.add("scrolled");
+      else tb.classList.remove("scrolled");
+    });
+  } catch(e) {
+    document.body.innerHTML = '<div style="padding:40px;font-family:system-ui"><h2>⚠️ 初始化错误</h2><p style="color:#b91c1c;white-space:pre-wrap">'+e.message+'\n\n'+e.stack+'</p><p>请尝试清除浏览器本地存储（localStorage）后刷新。</p></div>';
+    console.error(e);
+  }
+}
+
+function loadData(){
+  try{
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if(saved){
+      try{ 
+        const parsed = JSON.parse(saved);
+        if(Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'object' && parsed[0].term){
+          terms = parsed;
+        } else {
+          terms = [...DEFAULT_TERMS];
+        }
+      }catch(e){ terms = [...DEFAULT_TERMS]; }
+    } else {
+      terms = [...DEFAULT_TERMS];
+    }
+  } catch(e){ terms = [...DEFAULT_TERMS]; }
+
+  try{
+    const s = localStorage.getItem(SRS_KEY);
+    if(s){ try{ srsData = JSON.parse(s); }catch(e){ srsData = {}; } }
+    if(typeof srsData !== 'object' || srsData === null) srsData = {};
+  } catch(e){ srsData = {}; }
+
+  try{
+    const a = localStorage.getItem(ANSWER_CACHE_KEY);
+    if(a){ try{ answerCache = JSON.parse(a); }catch(e){ answerCache = {}; } }
+    if(typeof answerCache !== 'object' || answerCache === null) answerCache = {};
+  } catch(e){ answerCache = {}; }
+
+  try{
+    const f = localStorage.getItem(FAV_KEY);
+    if(f){ 
+      try{ 
+        const parsed = JSON.parse(f);
+        // 兼容数组和对象两种格式
+        if(Array.isArray(parsed)){
+          favSet = {};
+          parsed.forEach(function(t){ favSet[t] = true; });
+        } else if(typeof parsed === 'object' && parsed !== null){
+          favSet = parsed;
+        } else {
+          favSet = {};
+        }
+      }catch(e){ favSet = {}; }
+    }
+  } catch(e){ favSet = {}; }
+
+  try{
+    const g = localStorage.getItem(DAILY_GOAL_KEY);
+    if(g){ 
+      const v = parseInt(g);
+      dailyGoal = (v && v > 0) ? v : 20; 
+    }
+  } catch(e){ dailyGoal = 20; }
+
+  try{
+    const d = localStorage.getItem(DAILY_LOG_KEY);
+    if(d){ 
+      try{ 
+        const parsed = JSON.parse(d);
+        if(typeof parsed === 'object' && parsed !== null){
+          dailyLog = parsed;
+        } else {
+          dailyLog = {};
+        }
+      }catch(e){ dailyLog = {}; }
+    }
+  } catch(e){ dailyLog = {}; }
+}
+
+function saveData(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(terms));
+  localStorage.setItem(SRS_KEY, JSON.stringify(srsData));
+  localStorage.setItem(ANSWER_CACHE_KEY, JSON.stringify(answerCache));
+  localStorage.setItem(FAV_KEY, JSON.stringify(favSet));
+  localStorage.setItem(DAILY_LOG_KEY, JSON.stringify(dailyLog));
+}
+
+// ========== 搜索 ==========
+function openSearch(){
+  document.getElementById("searchModal").classList.add("show");
+  setTimeout(function(){
+    document.getElementById("searchTermInput").value = "";
+    document.getElementById("searchTermInput").focus();
+    document.getElementById("searchOnlyAnswered").checked = false;
+    document.getElementById("searchResults").innerHTML = '<p style="color:var(--text-soft);font-size:13px;padding:16px;text-align:center">输入关键词开始搜索</p>';
+  }, 50);
+}
+
+function closeSearch(){
+  document.getElementById("searchModal").classList.remove("show");
+}
+
+function searchTerms(){
+  const kw = document.getElementById("searchTermInput").value.trim().toLowerCase();
+  const onlyAnswered = document.getElementById("searchOnlyAnswered").checked;
+  const resultsEl = document.getElementById("searchResults");
+  
+  if(!kw){
+    resultsEl.innerHTML = '<p style="color:var(--text-soft);font-size:13px;padding:16px;text-align:center">输入关键词开始搜索</p>';
+    return;
+  }
+
+  const results = terms.filter(function(t){
+    if(onlyAnswered && !(answerCache[t.term] && answerCache[t.term].html)) return false;
+    return t.term.toLowerCase().indexOf(kw) >= 0;
+  }).slice(0, 50);
+
+  if(results.length === 0){
+    resultsEl.innerHTML = '<p style="color:var(--text-soft);font-size:13px;padding:16px;text-align:center">没有找到匹配的名词</p>';
+    return;
+  }
+
+  let html = "";
+  results.forEach(function(t, i){
+    const answered = answerCache[t.term] && answerCache[t.term].html;
+    const fav = favSet[t.term] ? "⭐ " : "";
+    const badge = answered ? '<span style="font-size:11px;padding:2px 6px;background:var(--accent-soft);color:var(--accent);border-radius:4px;margin-left:6px">已答</span>' : '';
+    html += '<div class="search-item" onclick="jumpToTerm(\''+t.term.replace(/'/g,"\\'")+'\')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">';
+    html += '<span style="font-size:14px">'+fav+t.term+'</span>';
+    html += '<span style="font-size:11px;color:var(--text-soft)">'+t.category+badge+'</span>';
+    html += '</div>';
+  });
+  if(results.length >= 50){
+    html += '<p style="color:var(--text-soft);font-size:12px;padding:8px 14px;text-align:center">仅显示前50条，输入更精确的关键词缩小范围</p>';
+  }
+  resultsEl.innerHTML = html;
+}
+
+function jumpToTerm(termName){
+  closeSearch();
+  closeDrawer();
+  // 切到全部，再定位
+  currentCat = "全部";
+  localStorage.setItem(CAT_KEY, "全部");
+  buildQueue();
+  const idx = filteredTerms.findIndex(function(t){ return t.term === termName; });
+  if(idx >= 0){
+    currentIdx = idx;
+    showTerm();
+    renderCategories();
+  }
+}
+
+// ========== 抽屉菜单 ==========
+function openDrawer(){
+  document.getElementById("drawer").classList.add("open");
+  document.getElementById("drawerMask").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+function closeDrawer(){
+  document.getElementById("drawer").classList.remove("open");
+  document.getElementById("drawerMask").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+// ========== API Key ==========
+function loadApiKey(){
+  const key = localStorage.getItem(APIKEY_KEY);
+  if(key){
+    document.getElementById("apiKey").value = key;
+    updateKeyStatus(true);
+  } else {
+    updateKeyStatus(false);
+  }
+}
+
+function saveKey(){
+  const key = document.getElementById("apiKey").value.trim();
+  if(!key){
+    localStorage.removeItem(APIKEY_KEY);
+    updateKeyStatus(false);
+    return;
+  }
+  localStorage.setItem(APIKEY_KEY, key);
+  updateKeyStatus(true);
+}
+
+function updateKeyStatus(ok){
+  const el = document.getElementById("keyStatus");
+  if(ok){
+    el.textContent = "✓ 已配置";
+    el.className = "key-status ok";
+  } else {
+    el.textContent = "未配置，AI 答题功能不可用";
+    el.className = "key-status warn";
+  }
+}
+
+// ========== 模式切换 ==========
+function setMode(mode){
+  currentMode = mode;
+  localStorage.setItem(MODE_KEY, mode);
+  renderModeButtons();
+  buildQueue();
+  currentIdx = 0;
+  _hasNavigated = false;
+  hideAnswer();
+  renderCategories();
+  showTerm();
+  updateStats();
+}
+
+function renderModeButtons(){
+  document.getElementById("mode-srs").classList.toggle("active", currentMode==="srs");
+  document.getElementById("mode-browse").classList.toggle("active", currentMode==="browse");
+}
+
+// ========== 分类渲染 ==========
+function renderCategories(){
+  const cats = {};
+  terms.forEach(t=>{
+    cats[t.category] = (cats[t.category]||0)+1;
+  });
+  const list = document.getElementById("catList");
+  list.innerHTML = "";
+
+  // 全部
+  const allDue = terms.filter(t=>isDue(t.term)).length;
+  const allLi = document.createElement("li");
+  const allCount = currentMode==="srs" ? allDue+"待复习" : terms.length;
+  allLi.innerHTML = "<span>全部</span><span class=\"count\">"+allCount+"</span>";
+  allLi.onclick = ()=>selectCategory("全部");
+  if(currentCat==="全部") allLi.classList.add("active");
+  list.appendChild(allLi);
+
+  // 我的收藏
+  const favCount = terms.filter(t=>favSet[t.term]).length;
+  const favDue = terms.filter(t=>favSet[t.term] && isDue(t.term)).length;
+  const favLi = document.createElement("li");
+  const favCnt = currentMode==="srs" ? favDue+"待" : favCount;
+  favLi.innerHTML = "<span>⭐ 我的收藏</span><span class=\"count\">"+favCnt+"</span>";
+  favLi.onclick = ()=>{ selectCategory("⭐ 我的收藏"); closeDrawer(); };
+  if(currentCat==="⭐ 我的收藏") favLi.classList.add("active");
+  list.appendChild(favLi);
+
+  // 已答过的
+  const answeredCount = Object.keys(answerCache).length;
+  const ansLi = document.createElement("li");
+  ansLi.innerHTML = "<span>📝 已答过的</span><span class=\"count\">"+answeredCount+"</span>";
+  ansLi.onclick = ()=>{ selectCategory("📝 已答过的"); closeDrawer(); };
+  if(currentCat==="📝 已答过的") ansLi.classList.add("active");
+  list.appendChild(ansLi);
+
+  // 各分类
+  Object.entries(cats).sort((a,b)=>b[1]-a[1]).forEach(([cat,count])=>{
+    const dueCount = terms.filter(t=>t.category===cat && isDue(t.term)).length;
+    const li = document.createElement("li");
+    const cnt = currentMode==="srs" ? dueCount+"待" : count;
+    li.innerHTML = "<span>"+cat+"</span><span class=\"count\">"+cnt+"</span>";
+    li.onclick = ()=>{ selectCategory(cat); closeDrawer(); };
+    if(cat===currentCat) li.classList.add("active");
+    list.appendChild(li);
+  });
+}
+
+function selectCategory(cat){
+  currentCat = cat;
+  localStorage.setItem(CAT_KEY, cat);
+  buildQueue();
+  currentIdx = 0;
+  _hasNavigated = false;
+  hideAnswer();
+  renderCategories();
+  showTerm();
+}
+
+// ========== 构建题目队列 ==========
+function buildQueue(){
+  let base;
+  if(currentCat==="全部"){
+    base = [...terms];
+  } else if(currentCat==="⭐ 我的收藏"){
+    base = terms.filter(t=>favSet[t.term]);
+  } else if(currentCat==="📝 已答过的"){
+    base = terms.filter(t=>answerCache[t.term] && answerCache[t.term].html);
+  } else {
+    base = terms.filter(t=>t.category===currentCat);
+  }
+
+  if(currentMode === "srs"){
+    base.sort((a,b)=>{
+      const ai = getSrsInfo(a.term);
+      const bi = getSrsInfo(b.term);
+      const aDue = ai.nextReview <= Date.now();
+      const bDue = bi.nextReview <= Date.now();
+
+      if(aDue && !bDue) return -1;
+      if(!aDue && bDue) return 1;
+      if(aDue && bDue){
+        if(ai.box !== bi.box) return ai.box - bi.box;
+        return ai.nextReview - bi.nextReview;
+      }
+      if(ai.box === 0 && bi.box !== 0) return -1;
+      if(ai.box !== 0 && bi.box === 0) return 1;
+      return ai.nextReview - bi.nextReview;
+    });
+  }
+
+  filteredTerms = base;
+}
+
+// ========== 题目展示 ==========
+function showTerm(){
+  if(filteredTerms.length===0){
+    const desc = currentCat==="⭐ 我的收藏"
+      ? "还没有收藏的名词，刷题时点星星收藏重点词"
+      : currentCat==="📝 已答过的"
+        ? "还没有答过的名词，点不会让 AI 生成答案后会自动记录"
+        : "点右上角菜单导入你的真题名词吧";
+    showEmpty("这个分类还没有题目", desc);
+    return;
+  }
+
+  const card = document.getElementById("termCard");
+  card.style.display = "";
+
+  // 确保内容区显示，空状态隐藏
+  document.getElementById("termContent").style.display = "";
+  document.getElementById("emptyState").style.display = "none";
+
+  // SRS模式下：第一次进入时跳到第一个待复习的词
+  // 但用户可以通过上/下一题自由浏览所有词
+  if(currentMode === "srs" && currentIdx === 0 && !_hasNavigated){
+    const firstDueIdx = filteredTerms.findIndex(t=>isDue(t.term));
+    if(firstDueIdx >= 0){
+      currentIdx = firstDueIdx;
+    }
+    // 如果没有到期的，就从第一个开始（让用户能浏览）
+  }
+
+  const t = filteredTerms[currentIdx];
+  const srs = getSrsInfo(t.term);
+
+  document.getElementById("termCat").textContent = t.category;
+  document.getElementById("termTitle").textContent = t.term;
+  document.getElementById("termIndex").textContent = (currentIdx+1) + " / " + filteredTerms.length;
+  document.getElementById("btnRow").style.display = "flex";
+
+  // 更新收藏按钮状态
+  updateFavBtn(t.term);
+
+  document.getElementById("srsInfo").innerHTML =
+    "<span>"+srs.label+"</span><span class=\"dot-small\"></span><span>"+formatNextReview(srs.nextReview)+"</span>";
+
+  hideAnswer();
+  updateProgress();
+}
+
+function updateFavBtn(term){
+  const btn = document.getElementById("favBtn");
+  if(!btn) return;
+  if(favSet[term]){
+    btn.textContent = "★";
+    btn.classList.add("active");
+    btn.title = "取消收藏";
+  } else {
+    btn.textContent = "☆";
+    btn.classList.remove("active");
+    btn.title = "收藏";
+  }
+}
+
+function toggleFav(){
+  const t = filteredTerms[currentIdx];
+  if(!t) return;
+  if(favSet[t.term]){
+    delete favSet[t.term];
+  } else {
+    favSet[t.term] = true;
+  }
+  saveData();
+  updateFavBtn(t.term);
+  renderCategories();
+
+  // 如果在收藏分类里取消收藏，且收藏为空，刷新显示
+  if(currentCat==="⭐ 我的收藏" && !favSet[t.term]){
+    buildQueue();
+    if(filteredTerms.length === 0){
+      showTerm();
+    }
+  }
+}
+
+function showEmpty(title, desc){
+  document.getElementById("emptyState").style.display = "flex";
+  document.getElementById("termContent").style.display = "none";
+  document.getElementById("emptyTitle").textContent = title;
+  document.getElementById("emptyDesc").textContent = desc;
+}
+
+function nextTerm(){
+  if(filteredTerms.length===0) return;
+  _hasNavigated = true;
+  currentIdx = (currentIdx+1) % filteredTerms.length;
+  hideAnswer();
+  showTerm();
+}
+
+function prevTerm(){
+  if(filteredTerms.length===0) return;
+  _hasNavigated = true;
+  currentIdx = (currentIdx-1+filteredTerms.length) % filteredTerms.length;
+  hideAnswer();
+  showTerm();
+}
+
+function shuffleTerms(){
+  if(currentMode === "srs"){
+    alert("间隔复习模式按遗忘曲线自动排序，不支持手动乱序");
+    return;
+  }
+  for(let i=filteredTerms.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    var tmp = filteredTerms[i];
+    filteredTerms[i] = filteredTerms[j];
+    filteredTerms[j] = tmp;
+  }
+  currentIdx = 0;
+  hideAnswer();
+  showTerm();
+}
+
+// ========== 答题逻辑 ==========
+function markKnow(){
+  const t = filteredTerms[currentIdx];
+  if(!t) return;
+
+  srsMarkKnow(t.term);
+  recordDailyReview(t.term);
+
+  var title = document.getElementById("termTitle");
+  title.style.color = "var(--green)";
+  setTimeout(function(){ title.style.color = ""; }, 400);
+
+  updateStats();
+  updateProgress();
+  renderCategories();
+
+  setTimeout(function(){
+    if(currentMode === "srs"){
+      // 间隔复习模式：会了之后自动跳到下一个待复习的
+      buildQueue();
+      const nextDueIdx = filteredTerms.findIndex(t=>isDue(t.term));
+      if(nextDueIdx >= 0){
+        currentIdx = nextDueIdx;
+        _hasNavigated = false; // 重置，下次 showTerm 还从到期的开始
+      }
+      showTerm();
+    } else {
+      // 顺序模式：自动跳下一题
+      if(currentIdx < filteredTerms.length-1){
+        nextTerm();
+      } else {
+        alert("这个分类已经刷完啦 🎉 换个分类继续吧～");
+        buildQueue();
+        currentIdx = 0;
+        showTerm();
+      }
+    }
+  }, 400);
+}
+
+function markDont(){
+  const t = filteredTerms[currentIdx];
+  if(!t){
+    alert("当前分类没有题目啦，换个分类试试～");
+    return;
+  }
+
+  // 按钮 loading 反馈
+  const btn = event && event.currentTarget;
+  if(btn){
+    btn.style.opacity = "0.6";
+    btn.style.pointerEvents = "none";
+  }
+  setTimeout(function(){
+    if(btn){ btn.style.opacity = ""; btn.style.pointerEvents = ""; }
+  }, 500);
+
+  const apiKey = localStorage.getItem(APIKEY_KEY);
+  const cached = answerCache[t.term];
+
+  // 有缓存直接显示
+  if(cached && cached.html){
+    srsMarkDont(t.term);
+    recordDailyReview(t.term);
+    updateStats();
+    updateProgress();
+    renderCategories();
+    showAnswer(cached.html, true);
+    return;
+  }
+
+  // 没缓存也没 API Key，提示配置
+  if(!apiKey){
+    showError("🔑 请先配置 DeepSeek API Key\n点击右上角 ☰ 菜单 → AI 答题配置 → 填入 sk- 开头的 Key → 保存");
+    openDrawer();
+    return;
+  }
+
+  srsMarkDont(t.term);
+  recordDailyReview(t.term);
+  updateStats();
+  updateProgress();
+  renderCategories();
+
+  generateAnswer(t.term, t.category);
+}
+
+function hideAnswer(){
+  document.getElementById("answerArea").classList.remove("show");
+  document.getElementById("answerLoading").style.display = "none";
+  document.getElementById("answerContent").style.display = "none";
+  document.getElementById("answerError").style.display = "none";
+  document.getElementById("cacheBadge").style.display = "none";
+  document.getElementById("regenBtn").style.display = "none";
+}
+
+function showLoading(){
+  document.getElementById("answerArea").classList.add("show");
+  document.getElementById("answerLoading").style.display = "flex";
+  document.getElementById("answerContent").style.display = "none";
+  document.getElementById("answerError").style.display = "none";
+  document.getElementById("cacheBadge").style.display = "none";
+  document.getElementById("regenBtn").style.display = "none";
+  setTimeout(function(){
+    document.getElementById("answerArea").scrollIntoView({behavior:"smooth", block:"nearest"});
+  }, 50);
+}
+
+function showAnswer(html, fromCache){
+  document.getElementById("answerArea").classList.add("show");
+  document.getElementById("answerLoading").style.display = "none";
+  document.getElementById("answerContent").style.display = "block";
+  document.getElementById("answerContent").innerHTML = html;
+  document.getElementById("answerError").style.display = "none";
+  const badge = document.getElementById("cacheBadge");
+  badge.style.display = "inline-block";
+  badge.className = "cache-badge" + (fromCache ? "" : " new");
+  badge.textContent = fromCache ? "📦 已缓存" : "✨ 刚生成 · 已保存";
+  document.getElementById("regenBtn").style.display = "inline-block";
+  // 自动滚动到答案区域
+  setTimeout(function(){
+    document.getElementById("answerArea").scrollIntoView({behavior:"smooth", block:"nearest"});
+  }, 50);
+}
+
+function showError(msg){
+  document.getElementById("answerArea").classList.add("show");
+  document.getElementById("answerLoading").style.display = "none";
+  document.getElementById("answerContent").style.display = "none";
+  document.getElementById("answerError").style.display = "block";
+  document.getElementById("answerError").textContent = msg;
+  document.getElementById("cacheBadge").style.display = "none";
+  document.getElementById("regenBtn").style.display = "none";
+  setTimeout(function(){
+    document.getElementById("answerArea").scrollIntoView({behavior:"smooth", block:"nearest"});
+  }, 50);
+}
+
+function regenerateAnswer(){
+  const t = filteredTerms[currentIdx];
+  if(!t) return;
+  // 清除缓存，重新生成
+  delete answerCache[t.term];
+  saveData();
+  generateAnswer(t.term, t.category);
+}
+
+// ========== AI 答题 ==========
+async function generateAnswer(term, category){
+  const apiKey = localStorage.getItem(APIKEY_KEY);
+  if(!apiKey){
+    showError("请先在菜单中配置 DeepSeek API Key 才能使用 AI 答题功能。");
+    openDrawer();
+    return;
+  }
+
+  showLoading();
+
+  const systemPrompt = "你是一位新闻传播学考研资深辅导老师，擅长按考研阅卷标准编写高质量的名词解释答案。\n"
+    + "【核心原则】采点给分，1分≈40字，5分题写180-250字即可，不要写成简答题体量。\n"
+    + "【五层满分框架】按以下顺序组织答案，每层用<h4>小标题：\n"
+    + "  1. 核心定义（必写，占30-40%）：一句话精准概括概念本质\n"
+    + "  2. 核心特征/内涵（必写，占20-30%）：说明核心特点、组成部分、核心属性\n"
+    + "  3. 来源/出处/发展（必写，占10-20%）：提出者、出处、时间、理论演变或分类\n"
+    + "  4. 功能/案例（选写，占10-15%）：学科功能、实际价值或经典案例\n"
+    + "  5. 评价/意义/局限（必写，占15-25%）：学科地位、现实意义、局限性（高分关键）\n"
+    + "【分类型调整侧重点】\n"
+    + "  - 理论类：重内涵+评价，必须有提出者/出处/时间\n"
+    + "  - 人物类：重身份+主要贡献+历史地位，附代表著作\n"
+    + "  - 事件类：重背景+经过+影响/意义\n"
+    + "  - 机构/媒介类：重性质+发展历程+地位/影响\n"
+    + "  - 技术类：重原理+应用场景+对传播的影响\n"
+    + "  - 概念术语类：重定义+特征+适用语境+辨析\n"
+    + "【语言要求】学术化但不晦涩，适合背诵，不要口语化。\n"
+    + "【输出格式】纯HTML，用<h4>做小标题，<p>做正文段落。不要输出任何额外说明或markdown标记。";
+
+  const userPrompt = "请为新闻传播学考研的名词解释题写\""+term+"\"的答案。\n"
+    + "分类："+category+"\n"
+    + "请输出完整的、可直接背诵的答案。";
+
+  try{
+    const res = await fetch("https://api.deepseek.com/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer "+apiKey
+      },
+      body: JSON.stringify({
+        model: "deepseek-chat",
+        messages: [
+          {role:"system", content:systemPrompt},
+          {role:"user", content:userPrompt}
+        ],
+        temperature: 0.7,
+        max_tokens: 1500
+      })
+    });
+    if(!res.ok){
+      const errText = await res.text();
+      showError("API 调用失败："+res.status+" "+errText.substring(0,100));
+      return;
+    }
+    const data = await res.json();
+    const content = data.choices[0].message.content;
+
+    answerCache[term] = {
+      html: content,
+      category: category,
+      time: Date.now()
+    };
+    saveData();
+
+    showAnswer(content, false);
+  }catch(e){
+    showError("网络错误："+e.message+"。请检查网络连接和 API Key 是否正确。");
+  }
+}
+
+// ========== 统计 ==========
+function updateStats(){
+  const total = terms.length;
+  let mastered = 0, due = 0;
+  terms.forEach(function(t){
+    const srs = getSrsInfo(t.term);
+    if(srs.box >= 5) mastered++;
+    if(isDue(t.term)) due++;
+  });
+
+  document.getElementById("stat-total").textContent = total;
+  document.getElementById("stat-mastered").textContent = mastered;
+  document.getElementById("stat-due").textContent = due;
+  // mini-due 已被 updateProgress 替换为每日进度，这里不再单独更新
+  const mini = document.getElementById("mini-due");
+  if(mini) mini.textContent = due;
+}
+
+function updateProgress(){
+  const today = getTodayStr();
+  const log = dailyLog[today] || {reviewed: 0};
+  const done = log.reviewed || 0;
+  const goal = dailyGoal;
+  const pct = goal>0 ? Math.min(100, Math.round(done/goal*100)) : 0;
+  
+  document.getElementById("progressText").textContent = done + " / " + goal;
+  document.getElementById("progressFill").style.width = pct+"%";
+  document.getElementById("progressLabel").textContent = "今日目标 🎯";
+  
+  // 顶栏小标记
+  const miniStat = document.querySelector(".mini-stat");
+  if(miniStat){
+    const miniB = miniStat.querySelector("b") || document.createElement("b");
+    if(done >= goal && goal > 0){
+      miniStat.classList.add("done");
+      miniStat.innerHTML = "🎉 已完成 <b>"+goal+"</b>";
+    } else {
+      miniStat.classList.remove("done");
+      miniStat.innerHTML = "今日 <b>"+done+"/"+goal+"</b>";
+    }
+  }
+}
+
+// ========== 每日目标 & 打卡 ==========
+function getTodayStr(){
+  const d = new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+
+function renderDailyGoal(){
+  document.getElementById("dailyGoal").value = dailyGoal;
+}
+
+function saveDailyGoal(){
+  const v = parseInt(document.getElementById("dailyGoal").value);
+  if(v && v > 0 && v <= 1000){
+    dailyGoal = v;
+    localStorage.setItem(DAILY_GOAL_KEY, v);
+    updateProgress();
+    alert("每日目标已设置为 "+v+" 题");
+  }
+}
+
+function recordDailyReview(term){
+  const today = getTodayStr();
+  if(!dailyLog[today]){
+    dailyLog[today] = {reviewed: 0, completed: false, terms: {}};
+  }
+  // 同一词当天只计一次
+  if(dailyLog[today].terms && dailyLog[today].terms[term]) return;
+  if(!dailyLog[today].terms) dailyLog[today].terms = {};
+  dailyLog[today].terms[term] = true;
+  dailyLog[today].reviewed++;
+  
+  // 第一次达成目标时标记完成
+  if(!dailyLog[today].completed && dailyLog[today].reviewed >= dailyGoal){
+    dailyLog[today].completed = true;
+    // 庆祝动效
+    showCelebrate();
+  }
+  
+  localStorage.setItem(DAILY_LOG_KEY, JSON.stringify(dailyLog));
+  updateProgress();
+  renderStreak();
+}
+
+function calcStreak(){
+  let streak = 0;
+  const d = new Date();
+  // 从今天往前数
+  while(true){
+    const key = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+    if(dailyLog[key] && dailyLog[key].completed){
+      streak++;
+      d.setDate(d.getDate()-1);
+    } else {
+      // 今天没完成不算断，但也不延长
+      if(streak === 0){
+        d.setDate(d.getDate()-1);
+        const ykey = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+        if(dailyLog[ykey] && dailyLog[ykey].completed){
+          streak++;
+          d.setDate(d.getDate()-1);
+          continue;
+        }
+      }
+      break;
+    }
+  }
+  return streak;
+}
+
+function renderStreak(){
+  const streak = calcStreak();
+  const totalDays = Object.keys(dailyLog).filter(k => dailyLog[k] && dailyLog[k].completed).length;
+  document.getElementById("streakDays").textContent = streak;
+  document.getElementById("totalCheckinDays").textContent = totalDays;
+  
+  // 渲染最近14天的打卡日历
+  const cal = document.getElementById("streakCal");
+  if(!cal) return;
+  let html = "";
+  const d = new Date();
+  const days = [];
+  for(let i=13;i>=0;i--){
+    const day = new Date(d);
+    day.setDate(d.getDate()-i);
+    days.push(day);
+  }
+  days.forEach(function(day){
+    const key = day.getFullYear()+"-"+String(day.getMonth()+1).padStart(2,"0")+"-"+String(day.getDate()).padStart(2,"0");
+    const completed = dailyLog[key] && dailyLog[key].completed;
+    const isToday = key === getTodayStr();
+    let cls = "cal-dot";
+    if(completed) cls += " done";
+    if(isToday) cls += " today";
+    html += '<div class="'+cls+'" title="'+key+(completed?' ✓':'')+'"></div>';
+  });
+  cal.innerHTML = html;
+}
+
+function showCelebrate(){
+  // 简单庆祝
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:100;pointer-events:none;animation:fadeInOut 2.5s ease forwards";
+  overlay.innerHTML = '<div style="text-align:center"><div style="font-size:64px;margin-bottom:12px">🎉</div><div style="font-size:20px;font-weight:600;color:#333">今日目标达成！</div><div style="font-size:14px;color:#888;margin-top:4px">连续打卡 '+calcStreak()+' 天</div></div>';
+  document.body.appendChild(overlay);
+  setTimeout(function(){ overlay.remove(); }, 2500);
+}
+
+// 加庆祝动画
+const styleEl = document.createElement("style");
+styleEl.textContent = `
+@keyframes fadeInOut{
+  0%{opacity:0;transform:scale(.8)}
+  20%{opacity:1;transform:scale(1)}
+  80%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(1.1)}
+}
+.cal-dot{aspect-ratio:1;border-radius:4px;background:var(--bg-soft);border:1px solid var(--border)}
+.cal-dot.done{background:var(--accent);border-color:var(--accent)}
+.cal-dot.today{box-shadow:0 0 0 2px var(--accent)}
+`;
+document.head.appendChild(styleEl);
+
+// ========== 导入/导出 ==========
+function openImport(){
+  closeDrawer();
+  document.getElementById("importModal").classList.add("show");
+}
+function closeImport(){
+  document.getElementById("importModal").classList.remove("show");
+}
+
+function doImport(){
+  const text = document.getElementById("importText").value.trim();
+  const cat = document.getElementById("importCat").value.trim() || "未分类";
+  if(!text){ closeImport(); return; }
+
+  let imported = [];
+  if(text.charAt(0)==="[" || text.charAt(0)==="{"){
+    try{
+      const arr = JSON.parse(text);
+      if(Array.isArray(arr)){
+        imported = arr.map(function(x){
+          return {
+            term: x.term || x.name || x.word || String(x),
+            category: x.category || cat
+          };
+        }).filter(function(x){ return x.term; });
+      }
+    }catch(e){}
+  }
+  if(imported.length===0){
+    const lines = text.split("\n").map(function(l){return l.trim()}).filter(function(l){return l});
+    imported = lines.map(function(line){return {term:line, category:cat}});
+  }
+
+  if(imported.length===0){
+    alert("没有解析到有效的名词");
+    return;
+  }
+
+  const existing = new Set(terms.map(function(t){return t.term}));
+  const newTerms = imported.filter(function(t){return !existing.has(t.term)});
+  terms = terms.concat(newTerms);
+  saveData();
+  buildQueue();
+  renderCategories();
+  showTerm();
+  updateStats();
+  closeImport();
+  alert("成功导入 " + newTerms.length + " 个新名词（跳过 " + (imported.length-newTerms.length) + " 个重复）");
+}
+
+function resetProgress(){
+  closeDrawer();
+  if(!confirm("确定要重置所有学习进度吗？名词数据和缓存的答案不会丢失。")) return;
+  srsData = {};
+  saveData();
+  buildQueue();
+  renderCategories();
+  updateStats();
+  showTerm();
+}
+
+function clearCache(){
+  closeDrawer();
+  if(!confirm("确定要清除所有缓存的答案吗？下次点不会会重新调用AI生成。")) return;
+  answerCache = {};
+  saveData();
+  alert("答案缓存已清除");
+}
+
+function exportData(){
+  closeDrawer();
+  const data = {
+    terms: terms,
+    srsData: srsData,
+    answerCache: answerCache,
+    favSet: favSet,
+    dailyGoal: dailyGoal,
+    dailyLog: dailyLog,
+    exportTime: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "新传名词解释学习记录_"+new Date().toISOString().slice(0,10)+".json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(){
+  closeDrawer();
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json";
+  input.onchange = function(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      try{
+        const data = JSON.parse(ev.target.result);
+        if(data.terms && Array.isArray(data.terms)){
+          terms = data.terms;
+        }
+        if(data.srsData) srsData = data.srsData;
+        if(data.answerCache) answerCache = data.answerCache;
+        if(data.favSet) favSet = data.favSet;
+        if(data.dailyGoal) dailyGoal = data.dailyGoal;
+        if(data.dailyLog) dailyLog = data.dailyLog;
+        saveData();
+        buildQueue();
+        renderCategories();
+        currentIdx = 0;
+        showTerm();
+        updateStats();
+        alert("导入成功！");
+      }catch(err){
+        alert("导入失败：文件格式不正确");
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// ========== 快捷键 ==========
+function bindKeys(){
+  document.addEventListener("keydown", function(e){
+    const tag = e.target.tagName;
+    if(tag==="INPUT"||tag==="TEXTAREA") return;
+    if(e.key==="ArrowRight"){ nextTerm(); e.preventDefault(); }
+    else if(e.key==="ArrowLeft"){ prevTerm(); e.preventDefault(); }
+    else if(e.key===" "){ markDont(); e.preventDefault(); }
+    else if(e.key==="Enter"){ markKnow(); e.preventDefault(); }
+    else if(e.key==="Escape"){
+      if(document.getElementById("searchModal").classList.contains("show")) closeSearch();
+      else if(document.getElementById("importModal").classList.contains("show")) closeImport();
+      else if(document.getElementById("drawer").classList.contains("open")) closeDrawer();
+    }
+    else if((e.key==="f" || e.key==="F") && !e.ctrlKey && !e.metaKey){
+      openSearch(); e.preventDefault();
+    }
+  });
+}
+
+init();
+</script>
+</body>
+</html>
